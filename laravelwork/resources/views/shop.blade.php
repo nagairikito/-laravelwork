@@ -11,11 +11,15 @@
         <p>{{ $shop->discription }}</p>
 
         <h3>商品一覧</h3>
-        <ul style="list-style: none;">
-        @foreach($product_info as $product)
-            <li>{{ $product->product_name }}</li>
-        @endforeach
-        </ul>
+        @if( $result == false )
+        <p>商品情報がありません</p>
+        @elseif( $result == true )
+            <ul style="list-style: none;">
+            @foreach($product_info as $product)
+                <li><a href="/product/{{ $product->product_id }}/{{ $product->product_name }}">{{ $product->product_name }}</a></li>
+            @endforeach
+            </ul>
+        @endif
 
 
      

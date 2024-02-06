@@ -14,10 +14,10 @@
 
     @if( $result == false )
         <p>店舗情報がありません。</p>
-    @elseif ( $result == true )
+    @elseif( $result == true )
         <ul style="list-style: none;">
             @foreach( $user_shops as $shop )
-                <li>{{ $shop->shop_name }}</li>
+                <li><a href="/shop/{{ $shop->shop_id }}/{{ $shop->shop_name }}">{{ $shop->shop_name }}</a></li>
             @endforeach
         </ul>
     @endif

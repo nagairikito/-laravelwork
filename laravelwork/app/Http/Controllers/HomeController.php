@@ -15,8 +15,12 @@ class HomeController extends Controller
      * @return view
      */
     public function allList() {
-        $shops = Shop::paginate(10); // データベースから全データを取得し、$shopsに格納
-        $products = Product::paginate(10); 
+        $shops = Shop::paginate(10, ['*'], 'shopPage') // データベースから全データを取得し、$shopsに格納
+            ->appends(['productPage' => \Request::get('productPage')]); 
+
+        $products = Product::paginate(10, ['*'], 'productPage')
+            ->appends(['shopPage' => \Request::get('shopPage')]);
+
         return view('home', ['shops' => $shops, 'products' => $products]); // 取得したデータをトップページに渡し、表示する
     }
 }

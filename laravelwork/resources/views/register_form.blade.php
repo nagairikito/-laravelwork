@@ -29,7 +29,7 @@
         @endif
 
         <p>確認用パスワード</p>
-        <input type="password" name="password_confirmation">
+        <input type="password" name="password_confirmation"><br>
         @if ( $errors->has('password.confirmed') )
             <p style="color: red;">{{ $errors->first('password.confirmed') }}</p>
         @endif

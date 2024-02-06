@@ -26,8 +26,8 @@ class ShopController extends Controller
         }
 
         // ショップ商品一覧
-            $product_info = Product::select([
-                'p.id',
+            $product_info = Product::select([ // ショップ詳細のリンクを踏むと店舗詳細画面に遷移し、ショップが出品している商品一覧を表示する
+                'p.id as product_id',
                 'p.name as product_name',
                 'p.price',
                 'p.stock',
@@ -41,7 +41,15 @@ class ShopController extends Controller
             ->where('p.shop_id', '=', $id)
             ->get();
 
-        return view('shop', ['shop' => $shop, 'product_info' => $product_info]); // $shop(データベースから検索したショップ)をshop.blade.phpに渡し、表示する
+            if( count($product_info) == 0 ) { // 商品の有無を表示(無の場合、商品情報がありませんと表示する)
+                $result = false;
+            } else {
+                $result = true;
+            }
+    
+    
+
+        return view('shop', ['shop' => $shop, 'product_info' => $product_info, 'result' => $result]); // $shop(データベースから検索したショップ)、ショップ出品商品一覧、ショップ出品商品の有無をshop.blade.phpに渡し、表示する
 
     }
 }

@@ -94,8 +94,9 @@ class UserController extends Controller
      * @return view
      */
     public function shopOrner($id) {
-        $auth = Auth::user()->id;
-        if( $id == $auth ) {
+        $auth = Auth::user()->id; // ここでセッションに保存されているユーザーのidを取得し$authに格納
+
+        if( $id == $auth ) { // home.blade.phpからわたってきたユーザーid($id)とセッションに保存されているユーザーidを照合し、合っていたらユーザーがもつショップ一覧を表示、違っていたらエラーメッセージとともにトップページに返す
             $user_shops = User::select([
                 'u.id as user_id',
                 'u.name as user_name',
@@ -113,7 +114,7 @@ class UserController extends Controller
             return redirect(route('home'))->with('user_shop_error', 'エラーが発生しました。');
         }
 
-        if( count($user_shops) == 0 ) {
+        if( count($user_shops) == 0 ) { // ユーザーがショップを開設しているかの判定
             $result = false;
         } else {
             $result = true;
