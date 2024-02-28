@@ -34,6 +34,14 @@ Route::group(['middleware' => ['auth']], function() {
 
     // ショップオーナーアカウント
     Route::get('/shop_orner/{id}', [UserController::class, 'shopOrner'])->name('shop_orner');
+
+    // ショップ開設フォーム
+    Route::get('/shop_register_form', [ShopController::class, 'shopRegisterForm'])->name('shop_register_form');
+
+    // ショップ登録
+    Route::post('/shop_register', [ShopController::class, 'shopRegister'])->name('shop_register');
+    // Route::get('/shop_register/{ Auth::user()->id }', [ShopController::class, 'shopRegister'])->name('shop_register');
+
 });
 
 // トップページ(ショップ一覧、商品一覧を表示)
@@ -53,10 +61,17 @@ Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
 // ショップ詳細
-Route::get('/shop/{id}/{name}', [ShopController::class, 'shopDetail'])->name('shopDetail');
+Route::get('/shop/{id}/{name}', [ShopController::class, 'shopDetail'])->name('shop_detail');
 
 // 商品詳細
-Route::get('/product/{id}/{name}', [ProductController::class, 'productDetail'])->name('productDetail');
+Route::get('/product/{id}/{name}', [ProductController::class, 'productDetail'])->name('product_detail');
+
+// 商品購入画面の表示
+Route::get('/purchase_form/{id}/{name}', [ProductController::class, 'purchaseForm'])->name('purchase_form');
+
+// 商品の購入処理
+Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase');
+
 
 
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\ShopRegisterRequest;
 
 
 class ShopController extends Controller
@@ -52,4 +53,40 @@ class ShopController extends Controller
         return view('shop', ['shop' => $shop, 'product_info' => $product_info, 'result' => $result]); // $shop(データベースから検索したショップ)、ショップ出品商品一覧、ショップ出品商品の有無をshop.blade.phpに渡し、表示する
 
     }
+
+    /**
+     * ショップ開設・登録フォームを表示する
+     * 
+     */
+    public function shopRegisterForm() {
+        return view('shop_register_form');
+
+    }
+
+    /**
+     * ショップ登録の処理
+     * 
+     */
+    public function shopRegister(ShopRegisterRequest $request) {
+        // $auth = Auth::user()->id;
+
+        // if( $id == $auth ) {
+            \DB::beginTransaction();
+            try {
+                Shop::query()->create([
+                    'name' => $request['name'],
+                    'discription' => $request['discription'],
+                ]);
+                \DB::commit();
+            } catch(\Throwable $e) {
+                \DB::rollback();
+                abort(500);
+            }
+            return view('registered');
+
+        // } else {
+        //     return redirect(route('shop_register_form'))->with('register_shop_err', 'ユーザー情報が見つかりません。');
+        // }
+    }
+
 }

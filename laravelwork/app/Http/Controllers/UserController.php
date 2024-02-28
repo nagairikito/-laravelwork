@@ -32,7 +32,6 @@ class UserController extends Controller
     public function register(RegisterRequest $request) {
         \DB::beginTransaction();
         try {
-            
             User::query()->create([
                 'name' => $request['name'],
                 'email' => $request['email'],
