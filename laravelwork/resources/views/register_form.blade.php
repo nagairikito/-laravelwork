@@ -8,6 +8,8 @@
 <body>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    <h1>新規登録フォーム</h1>
+
     <form action="{{ route('register') }}" method="POST">
     @csrf
         <p>ご氏名</p>

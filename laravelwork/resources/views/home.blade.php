@@ -59,8 +59,12 @@
         <li>画像の貼り付け</li>
         <li>ショップの編集機能</li>
         <li>商品の編集機能</li>
-        <li>商品購入処理</li>
     </ul>
+
+    <form>
+        <input type="search" placeholder="商品名・ショップ名">
+        <input type="submit" value="検索">
+    </form>
 
     <h2>ショップ一覧</h2>
         <div style="width: 100%;">
@@ -72,13 +76,13 @@
             {{ $shops->links() }}
         </div>
 
-        <h2>商品一覧</h2>
-        <a href="/product/0/avoihaoivh">avoihaoivh(エラーメッセージ確認用)</a><br>
-        @foreach ( $products as $product ) <!-- ShopControllerからわたってきたデータを表示 -->
-            <a href="/product/{{ $product->id }}/{{ $product->name }}">{{ $product->name }}</a><br>
-        @endforeach
+    <h2>商品一覧</h2>
+    <a href="/product/0/avoihaoivh">avoihaoivh(エラーメッセージ確認用)</a><br>
+    @foreach ( $products as $product ) <!-- ShopControllerからわたってきたデータを表示 -->
+        <a href="/product/{{ $product->id }}/{{ $product->name }}">{{ $product->name }}</a><br>
+    @endforeach
 
-        {{ $products->links() }}
+    {{ $products->links() }}
 
 </body>
 </html>

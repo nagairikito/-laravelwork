@@ -3,11 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Http\Controllers\ShopController;
-use App\Models\Shop;
+use App\Http\Controllers\ProductController;
+use App\Models\Product;
 
 
-class ShopRegisterRequest extends FormRequest
+class ProductRegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,10 @@ class ShopRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required',
+            'shop_id' => 'required',
             'name' => 'required | max:255',
+            'price' => 'required',
+            'stock' => 'required',
             // 'discription' => 'required',
         ];
     }

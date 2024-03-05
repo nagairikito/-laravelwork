@@ -40,7 +40,27 @@ Route::group(['middleware' => ['auth']], function() {
 
     // ショップ登録
     Route::post('/shop_register', [ShopController::class, 'shopRegister'])->name('shop_register');
-    // Route::get('/shop_register/{ Auth::user()->id }', [ShopController::class, 'shopRegister'])->name('shop_register');
+
+    // ショップの編集
+    Route::post('/shop_edit', [ShopController::class, 'shopEdit'])->name('shop_edit');
+
+    // ショップの削除
+    Route::post('/shop_destroy', [ShopController::class, 'shopDestroy'])->name('shop_destroy');
+
+    // 商品登録フォーム
+    Route::get('/product_register_form/{shop_id}', [ProductController::class, 'productRegisterForm'])->name('product_register_form');
+
+    // 商品登録
+    Route::post('/product_register', [ProductController::class, 'productRegister'])->name('product_register');
+
+    // 商品の在庫数追加
+    Route::post('/product_stock_add', [ProductController::class, 'productStockAdd'])->name('product_stock_add');
+
+    // 商品の編集
+    Route::post('/product_edit', [ProductController::class, 'productEdit'])->name('product_edit');
+
+    // 商品の削除
+    Route::post('/product_destroy', [ProductController::class, 'productDestroy'])->name('product_destroy');
 
 });
 

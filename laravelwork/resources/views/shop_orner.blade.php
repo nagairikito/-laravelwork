@@ -14,21 +14,38 @@
         <li>ユーザーID : {{ Auth::user()->id }}</li>
     </ul>
 
-    <button><a href="{{ route('shop_register_form') }}">ショップ開設</a></button>
 
     <h2>ショップ一覧</h2>
+    <button><a href="{{ route('shop_register_form') }}">ショップ開設</a></button>
     @if( $result == false )
         <p>店舗情報がありません。</p>
     @elseif( $result == true )
-        <ul style="list-style: none;">
+        <table border="0">
             @foreach( $user_shops as $shop )
-                <li>
-                    <a href="/shop/{{ $shop->shop_id }}/{{ $shop->shop_name }}">{{ $shop->shop_name }}</a>
-                    <button>編集</button>
-                    <button>削除</button>
-                </li>
+                <tr>
+                    <td><a href="/shop/{{ $shop->shop_id }}/{{ $shop->shop_name }}">{{ $shop->shop_name }}</a></td>
+                    @if( Auth::user() && Auth::user()->id == $shop->user_id )
+                        <td>
+                            <form action="{{ route('shop_edit') }}" method="POST">
+                                <input type="hidden" value="{{ $shop->id }}">
+                                <button type="submit">編集</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{{ route('shop_destroy') }}" method="POST">
+                                <input type="hidden" value="{{ $shop->id }}">
+                                <button type="submit">削除</button>
+                            </form>
+                        </td>
+                    @endif
+                </tr>
             @endforeach
-        </ul>
+        </table>
     @endif
+
+    <a href="{{ route('home') }}">トップページへ戻る</a>
+
+
+
 </body>
 </html>

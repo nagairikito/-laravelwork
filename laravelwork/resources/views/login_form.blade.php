@@ -8,6 +8,8 @@
 <body>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    <h1>ログインフォーム</h1>
+
     @if ( session('login_error') ) <!-- ログイン失敗時のエラーメッセージ -->
         <p style="color: red;">{{ session('login_error') }}</p>
     @endif

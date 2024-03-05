@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ShopRegisterRequest;
 
 
@@ -71,22 +72,38 @@ class ShopController extends Controller
         // $auth = Auth::user()->id;
 
         // if( $id == $auth ) {
-            \DB::beginTransaction();
-            try {
-                Shop::query()->create([
-                    'name' => $request['name'],
-                    'discription' => $request['discription'],
-                ]);
-                \DB::commit();
-            } catch(\Throwable $e) {
-                \DB::rollback();
-                abort(500);
-            }
-            return view('registered');
+            // \DB::beginTransaction();
+            // try {
+            //     Shop::query()->create([
+            //         'name' => $request['name'],
+            //         'discription' => $request['discription'],
+            //     ]);
+            //     \DB::commit();
+
+            // } catch(\Throwable $e) {
+            //     \DB::rollback();
+            //     abort(500);
+            // }
+            // return view('registered');
+
 
         // } else {
         //     return redirect(route('shop_register_form'))->with('register_shop_err', 'ユーザー情報が見つかりません。');
         // }
+
+        if( Auth::user() ) {
+            $new_shop = Shop::query()->create([
+                'user_id' => $request['user_id'],
+                'name' => $request['name'], 
+                'discription' => $request['discription'],
+            ]);
+            return view('registered');
+
+        } else {
+            return redirect(route('shop_register_form'))->with('register_shop_err', 'ユーザー情報が見つかりません。');
+        }
+
+
     }
 
 }
