@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
+// use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ShopRegisterRequest;
+use App\Http\Requests\ShopEditRequest;
 
 
 class ShopController extends Controller
@@ -65,44 +66,85 @@ class ShopController extends Controller
     }
 
     /**
-     * ショップ登録の処理
+     * ショップ登録処理
      * 
      */
     public function shopRegister(ShopRegisterRequest $request) {
-        // $auth = Auth::user()->id;
-
-        // if( $id == $auth ) {
-            // \DB::beginTransaction();
-            // try {
-            //     Shop::query()->create([
-            //         'name' => $request['name'],
-            //         'discription' => $request['discription'],
-            //     ]);
-            //     \DB::commit();
-
-            // } catch(\Throwable $e) {
-            //     \DB::rollback();
-            //     abort(500);
-            // }
-            // return view('registered');
-
-
-        // } else {
-        //     return redirect(route('shop_register_form'))->with('register_shop_err', 'ユーザー情報が見つかりません。');
-        // }
-
         if( Auth::user() ) {
             $new_shop = Shop::query()->create([
                 'user_id' => $request['user_id'],
                 'name' => $request['name'], 
                 'discription' => $request['discription'],
             ]);
-            return view('registered');
+            return redirect(route('shop_orner', [Auth::user()->id]))->with('shop_register_success', 'ショップを登録しました。');
 
         } else {
-            return redirect(route('shop_register_form'))->with('register_shop_err', 'ユーザー情報が見つかりません。');
+            return redirect(route('shop_register_form'))->with('shop_register_err', 'ユーザー情報が見つかりません。');
         }
 
+
+    }
+
+    /**
+     * ショップ編集フォームを表示する
+     * 
+     */
+    public function shopEditForm($id) {
+        // $id = intval($id);
+        $shop_info = Shop::find($id);
+        return view('shop_edit_form', ['shop' => $shop_info]);
+    }
+
+    /**
+     * ショップ編集機能
+     * 
+     */
+    public function shopEdit(Request $request) {
+        $auth = $request->login_user;
+        $shop_id = $request->shop_id;
+        $shop_info = Shop::find($shop_id);
+        $shop_user_id = $shop_info->user_id;
+
+        if( Auth::user()->id == $auth && $shop_user_id == $auth ) {
+            \DB::beginTransaction();
+            try {
+                \DB::table('shops')
+                ->where('id', $shop_id)
+                ->update([
+                    'id' => $shop_id,
+                    'user_id' => $request->login_user,
+                    'name' => $request->name,
+                    'discription' => $request->discription,
+                ]);
+
+                \DB::commit();
+                return redirect(route('shop_orner',[Auth::user()->id]))->with('shop_edit_success', 'ショップ情報を更新しました');
+
+            } catch(\Throwable $e) {
+                \DB::rollback();
+                abort(500);
+            }
+
+        } else {
+            return back()->with('shop_edit_err', 'エラーが発生しました。');
+        }
+    }
+
+
+    /**
+     * ショップ削除機能
+     * 
+     */
+    public function shopDestroy(Request $request) {
+        $auth = $request->login_user;
+        $shop_id = $request->shop_id;
+
+        if( $auth == Auth::user()->id ) {
+            Shop::where('id', $shop_id)->delete();
+            return back()->with('shop_delete_success', 'ショップを削除しました。');
+        } else {
+            return back()->with('shop_delete_err', 'エラーが発生しました。');
+        }
 
     }
 

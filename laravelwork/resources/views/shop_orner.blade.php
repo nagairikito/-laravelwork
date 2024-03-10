@@ -17,6 +17,23 @@
 
     <h2>ショップ一覧</h2>
     <button><a href="{{ route('shop_register_form') }}">ショップ開設</a></button>
+
+    @if( session('shop_register_success') )
+        <p style="color: green;">{{ session('shop_register_success') }}</p>
+    @endif
+
+    @if( session('shop_edit_success') )
+        <p style="color: green;">{{ session('shop_edit_success') }}</p>
+    @endif
+
+    @if( session('shop_delete_success') )
+        <p style="color: green;">{{ session('shop_delete_success') }}</p>
+    @endif
+    
+    @if( session('shop_delete_err') )
+        <p style="color: red;">{{ session('shop_delete_err') }}</p>
+    @endif
+
     @if( $result == false )
         <p>店舗情報がありません。</p>
     @elseif( $result == true )
@@ -26,15 +43,15 @@
                     <td><a href="/shop/{{ $shop->shop_id }}/{{ $shop->shop_name }}">{{ $shop->shop_name }}</a></td>
                     @if( Auth::user() && Auth::user()->id == $shop->user_id )
                         <td>
-                            <form action="{{ route('shop_edit') }}" method="POST">
-                                <input type="hidden" value="{{ $shop->id }}">
-                                <button type="submit">編集</button>
-                            </form>
+                            <button><a href="/shop_edit_form/{{ $shop->shop_id }}/{{ $shop->shop_name }}">編集</a></button>
+                            <button><a href="{{ route('shop_edit_form', [$shop->shop_id, $shop->shop_name]) }}">編集</a></button>
                         </td>
                         <td>
                             <form action="{{ route('shop_destroy') }}" method="POST">
-                                <input type="hidden" value="{{ $shop->id }}">
-                                <button type="submit">削除</button>
+                                @csrf
+                                    <input type="hidden" name="shop_id" value="{{ $shop->shop_id }}">
+                                    <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
+                                    <button type="submit">削除</button>
                             </form>
                         </td>
                     @endif

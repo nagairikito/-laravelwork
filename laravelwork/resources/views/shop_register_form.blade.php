@@ -9,8 +9,8 @@
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     <h1>ショップ開設・登録フォーム</h1>
-    @if( session('register_shop_err') ) <!-- ショップ開設時にエラーが発生した場合のメッセージ -->
-        <p style="color: red;">{{ session('register_shop_err') }}</p>
+    @if( session('shop_register_err') ) <!-- ショップ開設時にエラーが発生した場合のメッセージ -->
+        <p style="color: red;">{{ session('shop_register_err') }}</p>
     @endif
 
     <form action="{{ route('shop_register') }}" method="POST">

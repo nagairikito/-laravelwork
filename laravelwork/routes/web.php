@@ -41,7 +41,11 @@ Route::group(['middleware' => ['auth']], function() {
     // ショップ登録
     Route::post('/shop_register', [ShopController::class, 'shopRegister'])->name('shop_register');
 
+    // ショップ編集フォームの表示
+    Route::get('/shop_edit_form/{id}/{name}', [ShopController::class, 'shopEditForm'])->name('shop_edit_form');
+
     // ショップの編集
+    // Route::get('/shop_edit', [ShopController::class, 'shopEdit'])->name('shop_edit');
     Route::post('/shop_edit', [ShopController::class, 'shopEdit'])->name('shop_edit');
 
     // ショップの削除
@@ -55,6 +59,9 @@ Route::group(['middleware' => ['auth']], function() {
 
     // 商品の在庫数追加
     Route::post('/product_stock_add', [ProductController::class, 'productStockAdd'])->name('product_stock_add');
+
+    // 商品編集フォームの表示
+    Route::get('/product_edit_form/{id}/{name}', [ProductController::class, 'productEditForm'])->name('product_edit_form');
 
     // 商品の編集
     Route::post('/product_edit', [ProductController::class, 'productEdit'])->name('product_edit');

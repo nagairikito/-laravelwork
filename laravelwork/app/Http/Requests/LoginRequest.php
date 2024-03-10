@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Http\Controllers\UserController;
-use App\Models\User;
+use App\Http\Controllers\ProductController;
+use App\Models\Product;
+use App\Models\Shop;
 
 class LoginRequest extends FormRequest
 {
