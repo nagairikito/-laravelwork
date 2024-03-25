@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css"> -->
+
     <title>ホームページ</title>
 </head>
 <body>
@@ -41,13 +43,13 @@
         </ul>
     @endif
 
-
     <ul style="list-style: none;">
         <li><a href="{{ route('register_form') }}">新規作成</a></li>
         @if ( is_null(Auth::user()) )
         <li><a href="{{ route('login_form') }}">ログイン</a></li>
         @endif
         @if ( Auth::user() )
+        <li><a href="{{ route('login_form') }}">別のアカウントでログイン</a></li>
         <li><a href="/shop_orner/{{ Auth::user()->id }}">ショップオーナー</a></li>
         @endif
 
@@ -65,22 +67,54 @@
     </form>
 
     <h2>ショップ一覧</h2>
-        <div style="width: 100%;">
-            <a href="/shop/0/株式会社 山田">株式会社 山田(エラーメッセージ確認用)</a><br>
+        <ul style="list-style: none; display: flex; justify-content: flex-start; padding: 0px;">
+            <li style="0 5px 0 0; background-color: lightblue;">
+                <a href="{{ route('shop_detail', [0, '株式会社 山田']) }}">
+                    <div style="padding: 10px;">
+                        <img src="https://th.bing.com/th/id/OIP.e2D7uiFBePfio6qxhEGQlwHaHa?w=197&h=197&c=7&r=0&o=5&cb=11&pid=1.7">
+                        <p>株式会社 山田(エラーメッセージ確認用)</p>
+                    </div>
+                </a>
+            </li>
             @foreach ( $shops as $shop ) <!-- ShopControllerからわたってきたデータを表示 -->
-                <a href="/shop/{{ $shop->id }}/{{ $shop->name }}">{{ $shop->name }}</a><br>
+            <li style="margin: 5px; background-color: lightblue;">
+                <a href="{{ route('shop_detail', [$shop->id, $shop->name]) }}" style="padding: 10px;">
+                    <div style="padding: 10px;">
+                        <img src="https://th.bing.com/th/id/OIP.e2D7uiFBePfio6qxhEGQlwHaHa?w=197&h=197&c=7&r=0&o=5&cb=11&pid=1.7">
+                        <p>{{ $shop->name }}</p>
+                    </div>
+                </a>
+            </li>
             @endforeach
+        </ul>
+        {{ $shops->links() }}
 
-            {{ $shops->links() }}
-        </div>
+
 
     <h2>商品一覧</h2>
-    <a href="/product/0/avoihaoivh">avoihaoivh(エラーメッセージ確認用)</a><br>
-    @foreach ( $products as $product ) <!-- ShopControllerからわたってきたデータを表示 -->
-        <a href="/product/{{ $product->id }}/{{ $product->name }}">{{ $product->name }}</a><br>
-    @endforeach
-
-    {{ $products->links() }}
+        <ul style="list-style: none; display: flex; justify-content: flex-start; padding: 0px;">
+            <li style="0 5px 0 0; background-color: lightblue;">
+                <a href="{{ route('product_detail', [0, 'avoihaoivh']) }}">
+                    <div style="padding: 10px;">
+                        <p>avoihaoivh(エラーメッセージ確認用)</p>
+                        <img src="https://th.bing.com/th/id/OIP.rPn9QhUClxoV95i1_D5DNwHaE7?w=262&h=180&c=7&r=0&o=5&cb=11&pid=1.7">
+                        <p>￥1980円</p>
+                    </div>
+                </a>
+            </li>
+            @foreach ( $products as $product ) <!-- ShopControllerからわたってきたデータを表示 -->
+            <li style="margin: 5px; background-color: lightblue;">
+                <a href="{{ route('product_detail', [$product->id, $product->name]) }}">
+                    <div style="padding: 10px;">
+                        <p>{{ $product->name }}</p>
+                        <img src="https://th.bing.com/th/id/OIP.rPn9QhUClxoV95i1_D5DNwHaE7?w=262&h=180&c=7&r=0&o=5&cb=11&pid=1.7">
+                        <p>￥{{ $product->price }}円</p>
+                    </div>
+                </a>
+            </li>
+            @endforeach
+        </ul>
+        {{ $products->links() }}
 
 </body>
 </html>

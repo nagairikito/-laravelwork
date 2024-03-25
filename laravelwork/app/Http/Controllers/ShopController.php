@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use withFileUploads;
 use App\Models\Shop;
 use App\Models\Product;
 // use Illuminate\Support\Facades\DB;
@@ -71,11 +72,28 @@ class ShopController extends Controller
      */
     public function shopRegister(ShopRegisterRequest $request) {
         if( Auth::user() ) {
-            $new_shop = Shop::query()->create([
-                'user_id' => $request['user_id'],
-                'name' => $request['name'], 
-                'discription' => $request['discription'],
-            ]);
+
+            if($request->file('image')) {
+                $original = $request->file('image')->getClientOriginalName();
+                $image_name = date('Ymd_His') . '_' . $original;
+    
+                $request->file('image')->storeAs('public/shop_images', $image_name);
+
+                Shop::query()->create([
+                    'user_id' => $request['user_id'],
+                    'name' => $request['name'], 
+                    'discription' => $request['discription'],
+                    'image' => $image_name,
+                ]);
+            } else {
+                Shop::query()->create([
+                    'user_id' => $request['user_id'],
+                    'name' => $request['name'], 
+                    'discription' => $request['discription'],
+                    'image' => $request['image'],
+                ]);
+            }
+
             return redirect(route('shop_orner', [Auth::user()->id]))->with('shop_register_success', 'ショップを登録しました。');
 
         } else {
@@ -141,6 +159,7 @@ class ShopController extends Controller
 
         if( $auth == Auth::user()->id ) {
             Shop::where('id', $shop_id)->delete();
+            Product::where('shop_id', $shop_id)->delete();
             return back()->with('shop_delete_success', 'ショップを削除しました。');
         } else {
             return back()->with('shop_delete_err', 'エラーが発生しました。');

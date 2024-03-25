@@ -43,7 +43,6 @@
                     <td><a href="/shop/{{ $shop->shop_id }}/{{ $shop->shop_name }}">{{ $shop->shop_name }}</a></td>
                     @if( Auth::user() && Auth::user()->id == $shop->user_id )
                         <td>
-                            <button><a href="/shop_edit_form/{{ $shop->shop_id }}/{{ $shop->shop_name }}">編集</a></button>
                             <button><a href="{{ route('shop_edit_form', [$shop->shop_id, $shop->shop_name]) }}">編集</a></button>
                         </td>
                         <td>

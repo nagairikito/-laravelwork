@@ -14,7 +14,7 @@
         <p style="color: red;">{{ session('product_register_err') }}</p>
     @endif
 
-    <form action="{{ route('product_register') }}" method="POST">
+    <form action="{{ route('product_register') }}" method="POST" enctype="multipart/form-data">
     @csrf
         <input type="hidden" name="shop_id" value="{{ $shop_id }}">
         <p>商品名</p>
@@ -38,6 +38,9 @@
 
         <p>自由記述欄</p>
         <textarea name="discription" rows="10" cols="100"></textarea><br>
+
+        <p>商品の画像</p>
+        <input type="file" name="image"><br>
 
         <input type="submit" value="商品登録">
     </form>

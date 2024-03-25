@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ProductRegisterRequest;
 
 
@@ -104,13 +105,36 @@ class ProductController extends Controller
         $auth = Auth::user()->id;
 
         if( $shop && $shop_user_id === $auth ) {
-            $new_product = Product::query()->create([
-                'shop_id' => $request['shop_id'],
-                'name' => $request['name'], 
-                'price' => $request['price'], 
-                'stock' => $request['stock'], 
-                'discription' => $request['discription'],
-            ]);
+
+            if($request->file('image')) {
+                $original = $request->file('image')->getClientOriginalName();
+                $image_name = date('Ymd_His') . '_' . $original;
+        
+                $request->file('image')->storeAs('public/product_images', $image_name);
+
+                Product::query()->create([
+                    'shop_id' => $request['shop_id'],
+                    'name' => $request['name'], 
+                    'price' => $request['price'], 
+                    'stock' => $request['stock'], 
+                    'discription' => $request['discription'],
+                    'image' => $image_name,
+                ]);
+            } else {
+                if( $shop && $shop_user_id === $auth ) {
+                    $new_product = Product::query()->create([
+                        'shop_id' => $request['shop_id'],
+                        'name' => $request['name'], 
+                        'price' => $request['price'], 
+                        'stock' => $request['stock'], 
+                        'discription' => $request['discription'],
+                        'image' => $request['image'],
+                    ]);
+                } else {
+                    return back()->with('product_register_err', 'エラーが発生しました。');
+                }
+            }
+
             return redirect(route('shop_detail', [$shop->id, $shop->name]))->with('product_register_success', '商品を登録しました。');
         } else {
             return back()->with('product_register_err', 'エラーが発生しました。');
@@ -175,11 +199,14 @@ class ProductController extends Controller
      * 
      */
     public function productDestroy(Request $request) {
-        $product_id = $request->product_id;
+        $original = $request->product_id;
+        $product_id = intval($original);
+        $product = Product::find($product_id);
         $login_user = $request->login_user;
 
         if( $login_user == Auth::user()->id ) {
             Product::where('id', $product_id)->delete();
+            \Storage::disk('public')->delete('product_images', $product->image);
             return back()->with('product_delete_success', '商品を削除しました。');
         } else {
             return back()->with('product_delete_err', 'エラーが発生しました。');

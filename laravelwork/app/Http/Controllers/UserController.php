@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UserRegisterRequest;
 use App\Models\User;
 use App\Models\Shop;
 use App\Models\Product;
@@ -29,7 +29,7 @@ class UserController extends Controller
      * 
      * @return view
      */
-    public function register(RegisterRequest $request) {
+    public function register(UserRegisterRequest $request) {
         \DB::beginTransaction();
         try {
             User::query()->create([
@@ -64,11 +64,27 @@ class UserController extends Controller
     public function login(LoginRequest $user_info) {
         $credntials = $user_info->only('email', 'password');
 
-        if (Auth::attempt($credntials)) {
-            $user_info->session()->regenerate();
-            return redirect(route('home'))->with('login_success', 'ログインしました。');
+        if( !Auth::user() ) {
+            if( Auth::attempt($credntials) ) {
+                $user_info->session()->regenerate();
+                return redirect(route('home'))->with('login_success', 'ログインしました。');
+            }
+
+            return redirect(route('login_form'))->with('login_error', 'メールアドレスかパスワードが間違っています。');
+    
+        } elseif ( Auth::user() ) {
+            Auth::logout();
+
+            if( Auth::attempt($credntials) ) {
+                $user_info->session()->regenerate();
+                return redirect(route('home'))->with('login_success', 'アカウントを変更しました。');
+            }
+
+            return redirect(route('login_form'))->with('login_error', 'メールアドレスかパスワードが間違っています。');
+
+        } else {
+            return redirect(route('login_form'))->with('login_error', 'エラーが発生しました。。');    
         }
-        return redirect(route('login_form'))->with('login_error', 'メールアドレスかパスワードが間違っています。');
         
     }
 
