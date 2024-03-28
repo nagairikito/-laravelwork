@@ -80,7 +80,13 @@
             <li style="margin: 5px; background-color: lightblue;">
                 <a href="{{ route('shop_detail', [$shop->id, $shop->name]) }}" style="padding: 10px;">
                     <div style="padding: 10px;">
-                        <img src="https://th.bing.com/th/id/OIP.e2D7uiFBePfio6qxhEGQlwHaHa?w=197&h=197&c=7&r=0&o=5&cb=11&pid=1.7">
+
+                    @if( is_null($shop->image) )
+                    <img src="{{ asset('storage/shop_images/no_image_logo.png') }}">
+                    @else
+                        <img src="{{ asset('storage/shop_images' . $shop->image) }}">
+                    @endif
+
                         <p>{{ $shop->name }}</p>
                     </div>
                 </a>
@@ -107,7 +113,13 @@
                 <a href="{{ route('product_detail', [$product->id, $product->name]) }}">
                     <div style="padding: 10px;">
                         <p>{{ $product->name }}</p>
-                        <img src="https://th.bing.com/th/id/OIP.rPn9QhUClxoV95i1_D5DNwHaE7?w=262&h=180&c=7&r=0&o=5&cb=11&pid=1.7">
+
+                    @if( is_null($product->image) )
+                        <img src="{{ asset('storage/product_images/no_image_logo.png') }}">
+                    @else
+                        <img src="{{ asset('storage/product_images' . $product->image) }}">
+                    @endif
+
                         <p>￥{{ $product->price }}円</p>
                     </div>
                 </a>

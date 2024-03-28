@@ -13,7 +13,7 @@
         <p style="color: red;">{{ session('shop_edit_err') }}</p>
     @endif
 
-    <form action="{{ route('shop_edit') }}" method="POST">
+    <form action="{{ route('shop_edit') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <fieldset>
             <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
@@ -27,6 +27,8 @@
 
             <p>自由記述欄</p>
             <textarea name="discription" rows="10" cols="100" title="ショップ概要">{{ $shop->discription }}</textarea><br>
+
+            <input type="file" name="image"><br>
 
             <input type="submit" value="ショップ情報を変更">
     </fieldset>

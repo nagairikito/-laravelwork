@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use withFileUploads;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
@@ -159,35 +160,42 @@ class ProductController extends Controller
      */
     public function productEdit(Request $request) {
         $auth = $request->login_user;
-
         $product_id = $request->product_id;
-
         $shop_id = $request->shop_id;
         $shop = Shop::find($shop_id);
         $shop_user_id = $shop->user_id;
-
         $shop_name = $shop->name;
 
         if( Auth::user()->id == $auth && $shop_user_id == $auth ) {
-            \DB::beginTransaction();
-            try {
-                \DB::table('products')
-                ->where('id', $product_id)
+
+            if($request->file('image')) {
+                $original = $request->file('image')->getClientOriginalName();
+                $image_name = date('Ymd_His') . '_' . $original;
+                $request->file('image')->storeAs('public/product_images', $image_name);
+
+                Product::where('id', '=', $product_id)
                 ->update([
                     'shop_id' => $request->shop_id,
                     'name' => $request->name,
                     'price' => $request->price,
                     'stock' => $request->stock,
                     'discription' => $request->discription,
+                    'image' => $image_name,
+                ]);
+            } else {
+                Product::where('id', '=', $product_id)
+                ->update([
+                    'shop_id' => $request->shop_id,
+                    'name' => $request->name,
+                    'price' => $request->price,
+                    'stock' => $request->stock,
+                    'discription' => $request->discription,
+                    'image' => $request->image,
                 ]);
 
-                \DB::commit();
-                return redirect(route('shop_detail',[$shop_id, $shop_name]))->with('product_edit_success', '商品情報を更新しました');
-
-            } catch(\Throwable $e) {
-                \DB::rollback();
-                abort(500);
             }
+
+            return redirect(route('shop_detail',[$shop_id, $shop_name]))->with('product_edit_success', '商品情報を更新しました');
 
         } else {
             return back()->with('product_edit_err', 'エラーが発生しました。');

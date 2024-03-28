@@ -14,7 +14,7 @@
         <p style="color: red;">{{ session('product_edit_err') }}</p>
     @endif
 
-    <form action="{{ route('product_edit') }}" method="POST">
+    <form action="{{ route('product_edit') }}" method="POST" enctype="multipart/form-data">
     @csrf
         <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
         <input type="hidden" name="product_id" value="{{ $product_info->id }}">

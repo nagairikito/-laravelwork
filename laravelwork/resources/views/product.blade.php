@@ -8,7 +8,13 @@
 <body>
     <a href="{{ route('home') }}">トップページへ戻る</a>
     <h1>{{ $product->name }}</h1>
-    <img src="{{ asset('product_images/20240319_201835_IMG_4408.jpg') }}">
+
+    @if( $product->image )
+        <img src="{{ asset('storage/product_images/' . $product->image) }}">
+    @elseif( is_null($product->image) )
+        <img src="{{ asset('storage/product_images/no_image_logo.png') }}">
+    @endif
+
     <p style="color: red;">￥{{ $product->price }}円</p>
     <p>販売元：{{ $shop_name }}</p>
         <h2>商品情報</h2>

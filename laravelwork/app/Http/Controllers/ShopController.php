@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use withFileUploads;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Shop;
 use App\Models\Product;
-// use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ShopRegisterRequest;
 use App\Http\Requests\ShopEditRequest;
@@ -124,29 +125,45 @@ class ShopController extends Controller
         $shop_user_id = $shop_info->user_id;
 
         if( Auth::user()->id == $auth && $shop_user_id == $auth ) {
-            \DB::beginTransaction();
-            try {
-                \DB::table('shops')
-                ->where('id', $shop_id)
+
+            if ($request->file('image')) {
+                $original = $request->file('image')->getClientOriginalName();
+                $image_name = date('Ymd_His') . '_' . $original;
+                $request->file('image')->storeAs('public/shop_images', $image_name);
+
+
+                Shop::where('id', '=', $shop_id)
                 ->update([
-                    'id' => $shop_id,
-                    'user_id' => $request->login_user,
-                    'name' => $request->name,
-                    'discription' => $request->discription,
+                    'user_id' => $request['login_user'],
+                    'name' => $request['name'], 
+                    'discription' => $request['discription'],
+                    'image' => $image_name,
                 ]);
 
-                \DB::commit();
                 return redirect(route('shop_orner',[Auth::user()->id]))->with('shop_edit_success', 'ショップ情報を更新しました');
+    
+            } else {
 
-            } catch(\Throwable $e) {
-                \DB::rollback();
-                abort(500);
+                Shop::where('id', '=', $shop_id)
+                ->update([
+                    'user_id' => $request['login_user'],
+                    'name' => $request['name'], 
+                    'discription' => $request['discription'],
+                    'image' => $request['image'],
+                ]);
+    
+                    return redirect(route('shop_orner',[Auth::user()->id]))->with('shop_edit_success', 'ショップ情報を更新しました');
+    
+    
             }
 
         } else {
             return back()->with('shop_edit_err', 'エラーが発生しました。');
         }
+
+
     }
+
 
 
     /**
