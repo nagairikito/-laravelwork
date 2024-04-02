@@ -175,9 +175,27 @@ class ShopController extends Controller
         $shop_id = $request->shop_id;
 
         if( $auth == Auth::user()->id ) {
+    
+            $shop = Shop::find($shop_id);
+
+            if( $shop->image ) {
+                \Storage::disk('public')->delete('shop_images/' . $shop->image);
+            }
+
+
+            $product_images_data = Product::where('shop_id', $shop_id)->get();
+            $product_images = $product_images_data->pluck('image');
+            foreach($product_images as $product_image) {
+                \Storage::disk('public')->delete('product_images/' . $product_image);
+            }
+
+
             Shop::where('id', $shop_id)->delete();
             Product::where('shop_id', $shop_id)->delete();
+
+
             return back()->with('shop_delete_success', 'ショップを削除しました。');
+
         } else {
             return back()->with('shop_delete_err', 'エラーが発生しました。');
         }

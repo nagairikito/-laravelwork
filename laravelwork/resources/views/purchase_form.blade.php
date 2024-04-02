@@ -7,7 +7,13 @@
 </head>
 <body>
     <p>{{ $product->name }}</p>
-    <img src="">
+
+    @if( $product->image )
+        <img src="{{ asset('storage/product_images/' . $product->image) }}">
+    @elseif( is_null($product->image) )
+        <img src="{{ asset('storage/product_images/no_image_logo.png') }}">
+    @endif
+    
     <p style="color: red;">￥{{ $product->price }}円</p>
 
     @if( session('stock_error') )

@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('/css/app.css') }}">
+
     <title>{{ $shop->name }}</title>
 </head>
 <body>
     <a href="{{ route('home') }}">トップページへ戻る</a>
     <h1>{{ $shop->name }}</h1>
+
+        @if( $shop->image )
+            <img class="image" src="{{ asset('storage/shop_images/' . $shop->image) }}">
+        @elseif( is_null($shop->image) )
+            <img class="image" src="{{ asset('storage/shop_images/no_image_logo.png') }}">
+        @endif
+
         <p>{{ $shop->discription }}</p>
 
         <h2>商品一覧</h2>

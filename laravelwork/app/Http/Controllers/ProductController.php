@@ -214,8 +214,13 @@ class ProductController extends Controller
 
         if( $login_user == Auth::user()->id ) {
             Product::where('id', $product_id)->delete();
-            \Storage::disk('public')->delete('product_images', $product->image);
+            
+            if( $product->image ) {
+                \Storage::disk('public')->delete('product_images/' . $product->image);
+            }
+
             return back()->with('product_delete_success', '商品を削除しました。');
+
         } else {
             return back()->with('product_delete_err', 'エラーが発生しました。');
         }

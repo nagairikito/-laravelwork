@@ -41,6 +41,8 @@
         <p>自由記述欄</p>
         <textarea name="discription" rows="10" cols="100">{{ $product_info->discription }}</textarea><br>
 
+        <input type="file" name="image"><br>
+
         <input type="submit" value="商品情報を更新">
     </form>
 
