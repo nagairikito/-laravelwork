@@ -1,9 +1,53 @@
+header {
+    background-color: green;
+    height: 8%;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
+main {
+    position: absolute;
+    top: 8%;
+    left: 15%;
+    right: 10%;
+    width: 75%;
+    height: auto;
+}
+
 ul {
     list-style: none;
 }
 
 a {
     text-decoration: none;
+}
+
+
+
+.left_nav {
+    background-color:aquamarine;
+    height: 100%;
+    width: 15%;
+    position: absolute;
+    top: 8%;
+    left: 0;
+    z-index: 10;
+}
+
+.right_nav {
+    background-color:aquamarine;
+    height: 100vh;
+    width: 10%;
+    position: absolute;
+    top: 8%;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .success {
@@ -23,20 +67,31 @@ a {
     height: 500px;
 }
 
+.account_info_unit {
+    padding: 8px; margin: 5px;
+    border: 1px solid black;
+    border-radius: 15px;
+}
+
+.nav_info {
+    padding: 0;
+    margin: 10px auto;
+}
+
 .unit_frame{
     display: flex;
-    justify-content: space-between;
-    padding: 0px;
-
+    justify-content: flex-start;
+    margin: 5px;
+    padding: 5px;
 }
 
 .unit {
     margin: 0 5px 0 0;
     background-color:honeydew;
-    width: 300px;
-    height: 300px;
+    display: inline-block;
+    width: 250px;
+    height: 250px;
     border-radius: 30px;
-
 }
 
 .unit > a {
@@ -45,11 +100,14 @@ a {
     height: 100%;
 }
 
-.image {
-    width: 200px;
-    height: 200px;
-    margin: 0 50px 0 50px;
+.unit_image {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
     text-align: center;
+}
 
-
+.paginate_bar {
+    display: inline;
+    margin: 0 auto;
 }

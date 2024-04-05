@@ -28,7 +28,7 @@
         <p>ショップの画像</p>
         <input type="file" name="image"><br>
 
-        <input type="submit" value="ショップ登録">
+        <input type="submit" value="ショップ登録" onclick='return confirm("本当にショップ登録してよろしいですか？")'>
     </form>
 
     <a href="{{ route('home') }}">トップページへ戻る</a>

@@ -26,6 +26,9 @@ class ProductController extends Controller
             return redirect(route('home'));
         }
 
+        $update_access_count = $product->access_count + 1;
+        Product::where('id', '=', $id)->update(['access_count' => $update_access_count]);
+
         $shop_id = $product->shop_id;
         $shop_name = Shop::find($shop_id)->name;
 

@@ -48,19 +48,19 @@
                 @foreach($product_info as $product)
                     <tr>
                         <td><a href="/product/{{ $product->product_id }}/{{ $product->product_name }}">{{ $product->product_name }}</a></td>
-                            @if( Auth::user() && Auth::user()->id == $shop->user_id )
-                            <td>
-                                <button><a href="/product_edit_form/{{ $product->product_id }}/{{ $product->product_name }}">編集</a></button>
-                            </td>
-                            <td>
-                                <form action="{{ route('product_destroy') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                                    <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
-                                    <alert><input type="submit" value="削除"></alert>
-                                </form>
-                            </td>
-                            @endif
+                        @if( Auth::user() && Auth::user()->id == $shop->user_id )
+                        <td>
+                            <button><a href="/product_edit_form/{{ $product->product_id }}/{{ $product->product_name }}">編集</a></button>
+                        </td>
+                        <td>
+                            <form action="{{ route('product_destroy') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
+                                <input type="submit" value="削除" onclick='return confirm("本当に削除しますか？")'>
+                            </form>
+                        </td>
+                        @endif
                     </tr>
                 @endforeach
             </table>

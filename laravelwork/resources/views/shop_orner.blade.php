@@ -50,7 +50,7 @@
                                 @csrf
                                     <input type="hidden" name="shop_id" value="{{ $shop->shop_id }}">
                                     <input type="hidden" name="login_user" value="{{ Auth::user()->id }}">
-                                    <button type="submit">削除</button>
+                                    <button type="submit" onclick='return confirm("本当に削除しますか？")'>削除</button>
                             </form>
                         </td>
                     @endif

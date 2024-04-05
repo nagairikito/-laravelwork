@@ -30,7 +30,7 @@
 
             <input type="file" name="image"><br>
 
-            <input type="submit" value="ショップ情報を変更">
+            <input type="submit" value="ショップ情報を変更" onclick='return confirm("本当に変更してよろしいですか？")'>
     </fieldset>
     </form>
 

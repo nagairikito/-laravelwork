@@ -43,7 +43,7 @@
 
         <input type="file" name="image"><br>
 
-        <input type="submit" value="商品情報を更新">
+        <input type="submit" value="商品情報を更新" onclick='return confirm("本当に変更してよろしいですか？")'>
     </form>
 
 
