@@ -1,5 +1,9 @@
+* {
+    box-sizing: border-box;
+}
+
 header {
-    background-color: green;
+    background-color: rgb(107, 189, 107);
     height: 8%;
     width: 100vw;
     position: fixed;
@@ -9,12 +13,14 @@ header {
 }
 
 main {
+    box-sizing: border-box;
     position: absolute;
     top: 8%;
     left: 15%;
-    right: 10%;
-    width: 75%;
+    right: 15%;
+    width: 70%;
     height: auto;
+    padding: 30px;
 }
 
 ul {
@@ -25,10 +31,41 @@ a {
     text-decoration: none;
 }
 
+.search_var {
+    width: 20%;
+    height: 50%;
+    position: absolute;
+    left: 45%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+}
+
+.header_nav {
+    padding: 0;
+    margin: 0;
+    width: 5%;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    right: 2%;
+}
+
+.header_nav_auth {
+    padding: 0;
+    margin: 0;
+    width: 35%;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    right: 2%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
 
 .left_nav {
-    background-color:aquamarine;
     height: 100%;
     width: 15%;
     position: absolute;
@@ -38,9 +75,8 @@ a {
 }
 
 .right_nav {
-    background-color:aquamarine;
     height: 100vh;
-    width: 10%;
+    width: 15%;
     position: absolute;
     top: 8%;
     right: 0;
@@ -68,7 +104,9 @@ a {
 }
 
 .account_info_unit {
-    padding: 8px; margin: 5px;
+    width: 80%;
+    padding: 8px;
+    margin: 5px auto;
     border: 1px solid black;
     border-radius: 15px;
 }
@@ -76,6 +114,7 @@ a {
 .nav_info {
     padding: 0;
     margin: 10px auto;
+    text-align: center;
 }
 
 .unit_frame{
@@ -103,11 +142,7 @@ a {
 .unit_image {
     width: 100px;
     height: 100px;
-    margin: 0 auto;
-    text-align: center;
+    margin: 10px auto;
+    display: block;
 }
 
-.paginate_bar {
-    display: inline;
-    margin: 0 auto;
-}

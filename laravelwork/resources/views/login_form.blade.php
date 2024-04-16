@@ -10,8 +10,12 @@
 
     <h1>ログインフォーム</h1>
 
-    @if ( session('login_error') ) <!-- ログイン失敗時のエラーメッセージ -->
-        <p style="color: red;">{{ session('login_error') }}</p>
+    @if( session('login_error') ) <!-- ログイン失敗時のエラーメッセージ -->
+        <p class="fail">{{ session('login_error') }}</p>
+    @endif
+
+    @if( session('need_login') )
+        <p class="fail">{{ session('need_login') }}</p>
     @endif
 
     <form method="POST" action="{{ route('login') }}">

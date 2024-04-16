@@ -90,6 +90,139 @@ class ProductController extends Controller
     }
 
     /**
+     * ショッピングカート機能
+     */
+
+    // ショッピングカートの表示
+    public function shoppingCart(Request $request) {
+        $shopping_cart = session('shopping_cart');
+
+        if( !is_null($shopping_cart) ) {
+            $product_id_array = [];
+            foreach( $shopping_cart as $key => $value ) {
+                $product_id_array[] = $key;
+            }
+    
+            $product_price_array = [];
+            $product_count_array = [];
+            foreach( $product_id_array as $value ) {
+                $price = $shopping_cart[$value]['price'];
+                $num = $shopping_cart[$value]['num'];
+                $product_price = $price * $num;
+                $product_price_array[] = $product_price;
+
+                $product_count_array[] = $num;
+            }
+            $total_price = array_sum($product_price_array);
+    
+            $total_count = array_sum($product_count_array);
+    
+            $shopping_cart_info = [];
+            $shopping_cart_info['total_price'] = $total_price;
+            $shopping_cart_info['total_count'] = $total_count;
+    
+            return view('shopping_cart', ['shopping_cart' => $shopping_cart, 'shopping_cart_info' => $shopping_cart_info]);
+
+        } else {
+            return view('shopping_cart', ['shopping_cart' => $shopping_cart]);
+        }
+
+    }
+
+
+    // ショッピングカートに商品を追加
+    public function addShoppingCart(Request $product) {
+
+        // ユーザーからのリクエスト
+        $add_product_id = $product->id;
+        $add_product = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'image' => $product->image,
+            'num' => $product->num,
+        ];
+
+        if( $add_product['image'] == null ) {
+            $add_product['image'] = "no_image_logo.png";
+        }
+
+        if( !session()->has('shopping_cart') ) {
+            // セッションにショッピングカートが存在しないとき(カート内に初めて商品を入れるとき)
+            $shopping_cart = [];
+            $shopping_cart[$add_product_id] = $add_product;
+            session(['shopping_cart' => $shopping_cart]);
+            return back()->with('cart_success', '商品をカートに追加しました。');
+
+
+        } else {
+            // セッションにショッピングカートが存在するとき(すでにカート内に商品が入っている)
+            $shopping_cart = session('shopping_cart');
+            $product_incart_num = count($shopping_cart);
+
+            if( $product_incart_num == 0 ) {
+                // セッションにショッピングカートが存在しているが商品が１つも入っていないとき
+                $shopping_cart[$add_product_id] = $add_product;
+            } else {
+                // すでにショッピングカートに商品が入っているとき
+                if( array_key_exists($add_product_id, $shopping_cart) ) {
+                    // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
+                    $shopping_cart[$add_product_id]['num'] += $product->num;
+                } else {
+                    // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
+                    foreach( $shopping_cart as $key => $value ) {
+                        $product_keys[] = $key;
+                        $product_values[] = $value;
+    
+                    }
+                    array_push($product_keys, $add_product_id);
+                    array_push($product_values, $add_product);
+    
+                    $shopping_cart = array_combine($product_keys, $product_values);
+    
+                }
+
+            }
+
+            session(['shopping_cart' => $shopping_cart]);
+
+            return back()->with('cart_success', '商品をカートに追加しました。');
+        }
+    
+    }
+
+    // ショッピングカートの商品を削除
+    public function deleteShoppingCart(Request $request) {
+        $delete_product_id = $request->session_product_id;
+
+        $shopping_cart = session('shopping_cart');
+        $product_incart_num = count($shopping_cart);
+        
+
+        if( array_key_exists($delete_product_id, $shopping_cart) ) {
+            unset($shopping_cart[$delete_product_id]);
+            session(['shopping_cart' => $shopping_cart]);
+
+            $product_incart_num = count($shopping_cart);
+            if( $product_incart_num == 0 ) {
+                unset($shopping_cart);
+                session()->forget('shopping_cart');
+            }
+
+            return back()->with('delete_shopping_cart_success', 'カートから商品を削除しました');
+        } else {
+            return back()->with('delete_shopping_cart_failed', 'カートに商品がありません');
+        }
+    }
+
+    // ショッピングカートの商品をすべて削除
+    public function deleteAllShoppingCart() {
+        // $session_product_count = count(session()->get('shopping_cart'));
+        session()->forget('shopping_cart');
+        return back()->with('delete_shopping_cart_success', 'カートから商品を削除しました');
+    }
+
+    /**
      * 商品登録フォームを表示する
      * 
      */

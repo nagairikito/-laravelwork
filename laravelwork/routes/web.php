@@ -60,11 +60,24 @@ Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase
         // ログアウト
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
-        // // 別のアカウントでログイン
+        // 別のアカウントでログイン
         // Route::post('/change_account', [UserController::class, 'change_account'])->name('change_account');
 
         // ショップオーナーアカウント
         Route::get('/shop_orner/{id}', [UserController::class, 'shopOrner'])->name('shop_orner');
+
+        // ショッピングカート機能
+            // ショッピングカート表示
+            Route::get('/shopping_cart/{id}/{name}', [ProductController::class, 'shoppingCart'])->name('shopping_cart');
+
+            // ショッピングカートに商品を追加
+            Route::post('/add_shopping_cart', [ProductController::class, 'addShoppingCart'])->name('add_shopping_cart');
+
+            // ショッピングカートの商品を削除
+            Route::post('/delete_shopping_cart', [ProductController::class, 'deleteShoppingCart'])->name('delete_shopping_cart');
+
+            // ショッピングカートの商品をすべて削除
+            Route::post('/delete_all_shopping_cart', [ProductController::class, 'deleteAllShoppingCart'])->name('delete_all_shopping_cart');
 
         // ショップ開設フォーム
         Route::get('/shop_register_form', [ShopController::class, 'shopRegisterForm'])->name('shop_register_form');

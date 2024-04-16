@@ -11,11 +11,30 @@
 <body>
 
     <header>
+        <form class="search_var">
+            <input type="search" placeholder="商品名・ショップ名" style="width: 80%; height: 100%;">
+            <input type="submit" value="検索" style="width: 15%; height: 100%;">
+        </form>
+
+        @if ( is_null(Auth::user()) )
+                <p class="header_nav"><a href="{{ route('login_form') }}">ログイン</a></p>
+        @endif
+
+        @if ( Auth::user() )
+            <ul class="header_nav_auth">
+                <li><a href="{{ route('login_form') }}" >アカウント切り替え</a></li>
+                <li><a href="{{ route('shop_orner', [ Auth::user()->id ]) }}">ショップオーナー</a></li>
+                <li><a href=""><span style="font-size: 1.4em;">☆</span>お気に入り</a></li>
+                <li><a href="{{ route('shopping_cart', [ Auth::user()->id, Auth::user()->name ]) }}">🛒買い物カゴ</a></li>
+                <li><a href="">🌐購入履歴</a></li>
+            </ul>
+        @endif
+
 
     </header>
 
     <nav class="left_nav">
-        <table border="1" style="position: absolute; left: 50%; transform: translate(-50%, 0); margin-top: 10px;">
+        <table border="0" style="position: absolute; left: 50%; transform: translate(-50%, 0); margin-top: 10px;">
             @foreach( $categorys as $category )
             <tr>
                 <td><a href="">{{ $category }}</a></td>
@@ -41,6 +60,7 @@
                 <li style="margin: 5px;">ゲスト</li>
                 <button style="margin: 0 auto; display: block;"><a href="{{ route('login_form') }}">ログイン</a></button>
             @endif
+            
         </ul>
 
         <ul class="nav_info">
@@ -49,11 +69,12 @@
             <li><a href="{{ route('login_form') }}">ログイン</a></li>
             @endif
             @if ( Auth::user() )
-            <li><a href="{{ route('login_form') }}" >アカウント切り替え</a></li>
-            <li><a href="/shop_orner/{{ Auth::user()->id }}">ショップオーナー</a></li>
+            <li><a href="{{ route('login_form') }}" >👤アカウント切り替え</a></li>
+            <li><a href="{{ route('shop_orner', [ Auth::user()->id ]) }}">⌂ショップオーナー</a></li>
+            <li><a href=""><span style="font-size: 1.4em;">☆</span>お気に入り</a></li>
+            <li><a href="{{ route('shopping_cart', [ Auth::user()->id, Auth::user()->name ]) }}">🛒買い物カゴ</a></li>
+            <li><a href="">🌐購入履歴</a></li>
             @endif
-
-
         </ul>
 
     </nav>
@@ -62,15 +83,11 @@
 
         <ul>
             <li>登録した商品をcsv出力ができる。</li>
-            <li></li>
-            <li></li>
+            <li>カート機能</li>
+            <li>カテゴリー付与</li>
             <li></li>
         </ul>
 
-        <form>
-            <input type="search" placeholder="商品名・ショップ名">
-            <input type="submit" value="検索">
-        </form>
 
         @if ( session('login_success') ) <!-- ログイン成功時のメッセージ -->
         <p class="success">{{ session('login_success') }}</p>
@@ -94,6 +111,7 @@
 
 
         <h2>ショップ一覧</h2>
+        <div>
             <ul class="unit_frame">
                 <!-- <li class="unit">
                     <a href="{{ route('shop_detail', [0, '株式会社 山田']) }}">
@@ -120,8 +138,8 @@
                 </li>
                 @endforeach
             </ul>
-            <div class="paginate_bar">{{ $shops->links() }}</div>
-
+            <div style="position: relative; width: 100%; height: 50px;"><div style="position: absolute; left: 41%; tranform: translate(-50%, 0);">{{ $shops->links() }}</div></div>
+        </div>
 
 
         <h2>商品一覧</h2>
@@ -153,13 +171,14 @@
                 </li>
                 @endforeach
             </ul>
-            {{ $products->links() }}
+            <div style="position: relative; width: 100%; height: 50px;"><div style="position: absolute; left: 41%; tranform: translate(-50%, 0);">{{ $products->links() }}</div></div>
+
 
         <h2>人気の商品</h2>
         <ul class="unit_frame">
             @foreach ( $popular_products as $popular_product ) <!-- ShopControllerからわたってきたデータを表示 -->
                 <li class="unit">
-                    <a href="{{ route('product_detail', [$product->id, $product->name]) }}">
+                    <a href="{{ route('product_detail', [$popular_product->id, $popular_product->name]) }}">
                         <div>
                             <p>{{ $popular_product->name }}</p>
 
@@ -175,7 +194,9 @@
                 </li>
             @endforeach    
         </ul>
-        {{ $popular_products->links() }}
+        <div style="position: relative; width: 100%; height: 50px;"><div style="position: absolute; left: 41%; tranform: translate(-50%, 0);">{{ $popular_products->links() }}</div></div>
+    
+    
     </main>
 
 </body>

@@ -17,17 +17,15 @@ class HomeController extends Controller
      * @return view
      */
     public function allList() {
-        // $shops = Shop::paginate(5, ['*'], 'shopPage') // データベースから全データを取得し、$shopsに格納
-        //     ->appends(['productPage' => \Request::get('productPage')]); 
+        $shops = Shop::Paginate(5, ['*'], 'shopsPage') // データベースから全データを取得し、$shopsに格納
+            ->appends(['popularProductsPage' => \Request::get('popularProductsPage')]); 
 
-        // $products = Product::paginate(5, ['*'], 'productPage')
-        //     ->appends(['shopPage' => \Request::get('shopPage')]);
+        $products = Product::Paginate(5, ['*'], 'productsPage')
+            ->appends(['shopsPage' => \Request::get('shopsPage')]);
 
-        $shops = Shop::paginate(5);
-        $products = Product::paginate(5);
 
-        $popular_products = Product::orderByDesc('access_count')->paginate(5);
-
+        $popular_products = Product::orderByDesc('access_count')->Paginate(5, ['*'], 'popularProductsPage')
+            ->appends(['productsPage' => \Request::get('productsPage')]);
 
         //（仮）
         $categorys = [
