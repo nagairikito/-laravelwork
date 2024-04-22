@@ -49,45 +49,187 @@ class ProductController extends Controller
      * 商品購入処理
      * 
      */
+    // public function purchase(Request $request) {
+    //     $id = $request->id;
+    //     $number_sold = $request->number_sold;
+    //     $product = Product::find($id);
+    //     $stock = $product->stock;
+
+    //     if ($stock < $number_sold) {
+    //         return back()->with('stock_error', '在庫がありません。');
+    //     } else {
+    //         $update_stock = $stock - $number_sold;
+    //     // dd($update_stock);    
+
+
+
+    //         // Product::update('products')
+    //         // ->set('stock', '=', $update_stock)
+    //         // ->where('id', '=', $id)
+    //         // ->save();
+
+    //         \DB::beginTransaction();
+    //         try {
+    //             \DB::table('products')
+    //             ->where('id', $id)
+    //             ->update([
+    //                 'stock' => $update_stock,
+    //             ]);
+
+    //             \DB::commit();
+    //             return view('purchased');
+
+    //         } catch(\Throwable $e) {
+    //             \DB::rollback();
+    //             abort(500);
+    //         }
+
+
+    //     }
+
+    // }
+
     public function purchase(Request $request) {
-        $id = $request->id;
-        $number_sold = $request->number_sold;
-        $product = Product::find($id);
-        $stock = $product->stock;
+            // ショッピングカートに商品が存在しない状態で購入ボタンが押されたとき
+            if( !session()->has('shopping_cart') && isset($request->id)) {
+                $id = $request->id;
+                $num= $request->num;
+                $product = Product::find($id);
+                $stock = $product->stock;
 
-        if ($stock < $number_sold) {
-            return back()->with('stock_error', '在庫がありません。');
-        } else {
-            $update_stock = $stock - $number_sold;
-        // dd($update_stock);    
+                if ($stock < $num) {
+                    return back()->with('stock_error', '在庫がありません。');
+                } else {
+                    $update_stock = $stock - $num;
+        
+                    \DB::beginTransaction();
+                    try {
+                        \DB::table('products')
+                        ->where('id', $id)
+                        ->update([
+                            'stock' => $update_stock,
+                        ]);
+        
+                        \DB::commit();
+                        return view('purchased');
+        
+                    } catch(\Throwable $e) {
+                        \DB::rollback();
+                        abort(500);
+                    }
+                }
+
+            } elseif( session()->has('shopping_cart') && isset($request->id) ) {
+                $shopping_cart = session('shopping_cart');
+
+                $add_product_id = $request->id;
+                $product = Product::find($add_product_id);
+                $add_product = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'image' => $product->image,
+                    'num' => $request->num,
+                ];
+        
+                if( $add_product['image'] == null ) {
+                    $add_product['image'] = "no_image_logo.png";
+                }
+        
 
 
+                // セッションにショッピングカートが存在しており、カート内に商品が入っているとき
+                if( array_key_exists($add_product_id, $shopping_cart) ) {
+                    // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
+                    $shopping_cart[$add_product_id]['num'] += $request->num;
+                } else {
+                    // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
+                    foreach( $shopping_cart as $key => $value ) {
+                        $product_keys[] = $key;
+                        $product_values[] = $value;
+    
+                    }
+                    array_push($product_keys, $add_product_id);
+                    array_push($product_values, $add_product);
+    
+                    $shopping_cart = array_combine($product_keys, $product_values);
+    
+                }
 
-            // Product::update('products')
-            // ->set('stock', '=', $update_stock)
-            // ->where('id', '=', $id)
-            // ->save();
+                session(['shopping_cart' => $shopping_cart]);
+                return redirect( route('shopping_cart', [ Auth::user()->id, Auth::user()->name ]) );
 
-            \DB::beginTransaction();
-            try {
-                \DB::table('products')
-                ->where('id', $id)
-                ->update([
-                    'stock' => $update_stock,
-                ]);
 
-                \DB::commit();
+            } elseif( session()->has('shopping_cart') ) {
+            // 商品がショッピングカートに存在している状態で購入ボタンが押されたとき
+            
+                $shopping_cart = session('shopping_cart');
+
+                $shopping_cart_only_flag = false;
+                if( count($shopping_cart) == 1 ) {
+                    $shopping_cart_only_flag = true;
+                }
+
+                $id_array = [];
+                foreach( $shopping_cart as $key => $value ) {
+                    $id_array[] = $key;
+                }
+
+                $num_array = [];
+                foreach($id_array as $key => $value) {
+                    $num_value = 'num'.$value;
+                    $num_array[] = $request->$num_value;
+                }
+        
+                $id_num_array = array_combine($id_array, $num_array);
+                foreach( $id_num_array as $key => $value ) {
+                    $shopping_cart[$key]['num'] = intval($value);
+                }
+
+                $purchase_error = [];
+                foreach( $id_num_array as $key => $value ) {
+                    $product = Product::find($key);
+                    $stock = $product->stock;
+                    $value = intval($value);
+                    $update_stock = $stock - $value;
+
+
+                    if( $stock >= $value ) {
+                        Product::where('id', '=', $key)
+                            ->update([
+                                'stock' => $update_stock,
+                            ]);
+                        
+                        unset($shopping_cart[$key]);
+
+                    } else {
+                        $purchase_error[] = $product->name;
+                    }
+                }
+                
+
+                if( count($shopping_cart) == 0 ) {
+                    unset($shopping_cart);
+                    session()->forget('shopping_cart');
+                } else {
+                    session(['shopping_cart' => $shopping_cart]);
+                }
+
+                if( count($purchase_error) == 1 && $shopping_cart_only_flag == true ) {
+                    return back()->with('purchase_error_only', $purchase_error[0] . 'の購入に失敗しました。');
+                }
+
+                if( count($purchase_error) >= 1 && $shopping_cart_only_flag == false ) {
+                    return view('purchased')->with('purchase_error', $purchase_error);
+                }
+
                 return view('purchased');
-
-            } catch(\Throwable $e) {
-                \DB::rollback();
-                abort(500);
+            
+            } else {
+                return redirect( route('home') );
             }
-
-
-        }
-
     }
+
 
     /**
      * ショッピングカート機能
@@ -110,7 +252,6 @@ class ProductController extends Controller
                 $num = $shopping_cart[$value]['num'];
                 $product_price = $price * $num;
                 $product_price_array[] = $product_price;
-
                 $product_count_array[] = $num;
             }
             $total_price = array_sum($product_price_array);
@@ -132,7 +273,6 @@ class ProductController extends Controller
 
     // ショッピングカートに商品を追加
     public function addShoppingCart(Request $product) {
-
         // ユーザーからのリクエスト
         $add_product_id = $product->id;
         $add_product = [
@@ -164,7 +304,7 @@ class ProductController extends Controller
                 // セッションにショッピングカートが存在しているが商品が１つも入っていないとき
                 $shopping_cart[$add_product_id] = $add_product;
             } else {
-                // すでにショッピングカートに商品が入っているとき
+                // セッションにショッピングカートが存在しており、カート内に商品が入っているとき
                 if( array_key_exists($add_product_id, $shopping_cart) ) {
                     // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
                     $shopping_cart[$add_product_id]['num'] += $product->num;
@@ -217,7 +357,6 @@ class ProductController extends Controller
 
     // ショッピングカートの商品をすべて削除
     public function deleteAllShoppingCart() {
-        // $session_product_count = count(session()->get('shopping_cart'));
         session()->forget('shopping_cart');
         return back()->with('delete_shopping_cart_success', 'カートから商品を削除しました');
     }

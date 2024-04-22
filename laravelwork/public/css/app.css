@@ -86,6 +86,10 @@ a {
     justify-content: flex-start;
 }
 
+.important {
+    color: red;
+}
+
 .success {
     color:green;
 }

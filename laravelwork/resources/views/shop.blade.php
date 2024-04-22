@@ -25,19 +25,19 @@
         @endif
 
         @if ( session('product_delete_success') )
-            <p style="color: green">{{ session('product_delete_success') }}</p>
+            <p class="success">{{ session('product_delete_success') }}</p>
         @endif
 
         @if ( session('product_delete_err') )
-            <p style="color: red">{{ session('product_delete_err') }}</p>
+            <p class="fail">{{ session('product_delete_err') }}</p>
         @endif
 
         @if ( session('product_register_success') )
-            <p style="color: green">{{ session('product_register_success') }}</p>
+            <p class="success">{{ session('product_register_success') }}</p>
         @endif
 
         @if ( session('product_edit_success') )
-            <p style="color: green">{{ session('product_edit_success') }}</p>
+            <p class="success">{{ session('product_edit_success') }}</p>
         @endif
 
 

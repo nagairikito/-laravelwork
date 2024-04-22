@@ -22,7 +22,9 @@
         <img class="image" src="{{ asset('storage/product_images/no_image_logo.png') }}">
     @endif
 
-    @if( $product->stock == 0 )
+    @if( 0 < $product->stock && $product->stock <= 10 )
+        <p class="important">残り{{ $product->stock }}点</p>
+    @elseif( $product->stock == 0 )
         <p class="fail">SOLD OUT</p>
     @endif
 
@@ -39,7 +41,7 @@
                 <input type="hidden" name="price" value="{{ $product->price }}">
                 <input type="hidden" name="image" value="{{ $product->image }}">
                 <p>個数:<input type="number" name="num" value=1 min=1 max=99></p>
-                <input type="submit" value="カートに入れる"><br><br>
+                <input type="submit" name="incart" value="カートに入れる"><br><br>
             </form>
 
             <button><a href="/purchase_form/{{ $product->id }}/{{ $product->name }}">購入</a></button>

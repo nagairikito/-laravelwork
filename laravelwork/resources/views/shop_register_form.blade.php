@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('/css/app.css') }}">
+
     <title>ショップ開設・登録フォーム</title>
 </head>
 <body>
@@ -10,7 +12,7 @@
 
     <h1>ショップ開設・登録フォーム</h1>
     @if( session('shop_register_err') ) <!-- ショップ開設時にエラーが発生した場合のメッセージ -->
-        <p style="color: red;">{{ session('shop_register_err') }}</p>
+        <p class="fail">{{ session('shop_register_err') }}</p>
     @endif
 
     <form action="{{ route('shop_register') }}" method="POST" enctype="multipart/form-data">
@@ -19,7 +21,7 @@
         <p>ショップ名</p>
         <input type="name" name="name">
         @if ( $errors->has('name') )
-            <p style="color: red;">{{ $errors->first('name') }}</p>
+            <p calss="fail">{{ $errors->first('name') }}</p>
         @endif
 
         <p>自由記述欄</p>

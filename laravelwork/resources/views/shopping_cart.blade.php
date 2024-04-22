@@ -23,36 +23,47 @@
         <p style="color: red; font-weight: bold; font-size: 1.2rem;">カート内商品　　{{ $shopping_cart_info['total_count'] }}点</p>
     @endif
 
+    @if( session('purchase_error_only') )
+        <p class="fail">{{ session('purchase_error_only') }}</p>
+    @endif
+
     @if( isset( $shopping_cart ) )
         <form action="{{ route('delete_all_shopping_cart') }}" method="POST">
         @csrf
             <input type="submit" value="カート内の商品を空にする">
 
         </form>
-        <table border="1">
-            @foreach( $shopping_cart as $product => $value )
-                <tr>
-                    <td>
-                        <a href="{{ route('product_detail', [ $value['id'], $value['name'] ]) }}"><img class="" style="width: 200px;" src="{{ asset('storage/product_images/' . $value['image']) }}"></a>
-                    </td>
-                    <td>
-                        <p>{{ $value['name'] }}</p>
-                        <p style="color: red;">￥{{ $value['price'] }}円</p>
-                        <p>個数：<input type="number" min=1 max=99 value="{{ $value['num'] }}" style="width: 50px;">点</p>
-                        <form action="{{ route('delete_shopping_cart') }}" method="POST">
-                        @csrf
-                            <input type="hidden" name="session_product_id" value="{{ $value['id'] }}">
-                            <input type="submit" value="削除">
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </table>
+
+        <form action="{{ route('purchase') }}" method="POST">
+        @csrf
+            <table border="1">
+                @foreach( $shopping_cart as $product => $value )
+                    <tr>
+                        <td>
+                            <a href="{{ route('product_detail', [ $value['id'], $value['name'] ]) }}"><img class="" style="width: 200px;" src="{{ asset('storage/product_images/' . $value['image']) }}"></a>
+                        </td>
+                        <td>
+                            <input type="hidden" name="{{ $value['id'] }}" value="{{ $value['id'] }}">
+                            <p>{{ $value['name'] }}</p>
+                            <p style="color: red;">￥{{ $value['price'] }}円</p>
+                            <p>個数：<input type="number" min=1 max=99 value="{{ $value['num'] }}" name="{{ 'num' . $value['id'] }}" style="width: 50px;">点</p>
+                            <form action="{{ route('delete_shopping_cart') }}" method="POST">
+                            @csrf
+                                <input type="hidden" name="session_product_id" value="{{ $value['id'] }}">
+                                <input type="submit" value="削除">
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+            <input type="submit" value="購入">
+        </form>
+
     @else
         <p>カートに商品が入っていません。</p>
     @endif
 
-
+    <br>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
 

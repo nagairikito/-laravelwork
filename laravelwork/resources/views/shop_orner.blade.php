@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('/css/app.css') }}">
+
     <title>MyShops</title>
 </head>
 <body>
@@ -19,19 +21,19 @@
     <button><a href="{{ route('shop_register_form') }}">ショップ開設</a></button>
 
     @if( session('shop_register_success') )
-        <p style="color: green;">{{ session('shop_register_success') }}</p>
+        <p class="success">{{ session('shop_register_success') }}</p>
     @endif
 
     @if( session('shop_edit_success') )
-        <p style="color: green;">{{ session('shop_edit_success') }}</p>
+        <p class="success">{{ session('shop_edit_success') }}</p>
     @endif
 
     @if( session('shop_delete_success') )
-        <p style="color: green;">{{ session('shop_delete_success') }}</p>
+        <p class="success">{{ session('shop_delete_success') }}</p>
     @endif
     
     @if( session('shop_delete_err') )
-        <p style="color: red;">{{ session('shop_delete_err') }}</p>
+        <p class="fail">{{ session('shop_delete_err') }}</p>
     @endif
 
     @if( $result == false )

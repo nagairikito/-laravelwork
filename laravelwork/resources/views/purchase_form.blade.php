@@ -29,7 +29,7 @@
     <form action="{{ route('purchase') }}" method="POST">
     @csrf
         <input type="hidden" name="id" value="{{ $product->id }}">
-        <p>個数:<input type="number" name="number_sold" value=1 min=1 max=99></p><br>
+        <p>個数:<input type="number" name="num" value=1 min=1 max=99></p><br>
         <input type="submit" value="購入を確定する">
     </form>
 
