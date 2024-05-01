@@ -10,6 +10,14 @@
 <body>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    @if( session('favorite_success') )
+        <p class="success">{{ session('favorite_success') }}</p>
+    @endif
+
+    @if( session('delete_favorite_product_success') )
+        <p class="success">{{ session('delete_favorite_product_success') }}</p>
+    @endif
+
     @if( session('cart_success') )
         <p class="success">{{ session('cart_success') }}</p>
     @endif
@@ -20,6 +28,20 @@
         <img class="image" src="{{ asset('storage/product_images/' . $product->image) }}">
     @elseif( is_null($product->image) )
         <img class="image" src="{{ asset('storage/product_images/no_image_logo.png') }}">
+    @endif
+
+    @if( $favorite_flag == false )
+        <form action="{{ route('add_favorite_product') }}" method="POST">
+        @csrf
+            <input type="hidden" name="id" value="{{ $product->id }}">
+            <input type="submit" value="☆" class="favorite_product_button">
+        </form>
+    @else
+        <form action="{{ route('delete_favorite_product') }}" method="POST">
+        @csrf
+            <input type="hidden" name="session_favorite_product_id" value="{{ $product->id }}">
+            <input type="submit" value="★" class="favorite_product_button">
+        </form>
     @endif
 
     @if( 0 < $product->stock && $product->stock <= 10 )

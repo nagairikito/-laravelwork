@@ -66,6 +66,19 @@ Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase
         // ショップオーナーアカウント
         Route::get('/shop_orner/{id}', [UserController::class, 'shopOrner'])->name('shop_orner');
 
+        // お気に入り機能
+            // お気に入り商品ページ表示 
+            Route::get('/favorite_product/{id}', [ProductController::class, 'favoriteProduct'])->name('favorite_product');
+
+            // お気に入り商品を追加
+            Route::post('/add_favorite_product', [ProductController::class, 'addFavoriteProduct'])->name('add_favorite_product');
+
+            // お気に入り商品の削除
+            Route::post('/delete_favorite_product', [ProductController::class, 'deleteFavoriteProduct'])->name('delete_favorite_product');
+
+            // お気に入り商品をすべて削除
+            Route::post('/delete_all_favorite_product', [ProductController::class, 'deleteAllFavoriteProduct'])->name('delete_all_favorite_product');
+
         // ショッピングカート機能
             // ショッピングカート表示
             Route::get('/shopping_cart/{id}/{name}', [ProductController::class, 'shoppingCart'])->name('shopping_cart');
@@ -78,6 +91,9 @@ Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase
 
             // ショッピングカートの商品をすべて削除
             Route::post('/delete_all_shopping_cart', [ProductController::class, 'deleteAllShoppingCart'])->name('delete_all_shopping_cart');
+
+        // 購入履歴
+        Route::get('/purchased_product/{id}/{name}', [ProductController::class, 'purchasedProduct'])->name('purchased_product');
 
         // ショップ開設フォーム
         Route::get('/shop_register_form', [ShopController::class, 'shopRegisterForm'])->name('shop_register_form');
