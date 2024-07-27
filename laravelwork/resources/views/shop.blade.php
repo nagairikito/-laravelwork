@@ -8,6 +8,12 @@
     <title>{{ $shop->name }}</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
     <h1>{{ $shop->name }}</h1>
 
@@ -22,6 +28,14 @@
         <h2>商品一覧</h2>
         @if( Auth::user() && Auth::user()->id == $shop->user_id )
             <button><a href="/product_register_form/{{ $shop->id }}">商品登録</a></button>
+
+            <form action="{{ route('csv_file') }}" method="POST">
+            @csrf
+                <input type="hidden" name="shop_id" value="{{ $shop->id }}">
+                <input type="hidden" name="shop_name" value="{{ $shop->name }}">
+                <input type="hidden" name="product_exist_flag" value="{{ $result }}">
+                <input type="submit" value="CSV出力">
+            </form>
         @endif
 
         @if ( session('product_delete_success') )
@@ -38,6 +52,14 @@
 
         @if ( session('product_edit_success') )
             <p class="success">{{ session('product_edit_success') }}</p>
+        @endif
+
+        @if ( session('csv_success') )
+            <p class="success">{{ session('csv_success') }}</p>
+        @endif
+
+        @if ( session('csv_fail') )
+            <p class="fail">{{ session('csv_fail') }}</p>
         @endif
 
 
@@ -70,6 +92,7 @@
      
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 </body>
 </html>

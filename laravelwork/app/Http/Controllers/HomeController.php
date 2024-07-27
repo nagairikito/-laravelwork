@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -27,21 +29,28 @@ class HomeController extends Controller
         $popular_products = Product::orderByDesc('access_count')->Paginate(5, ['*'], 'popularProductsPage')
             ->appends(['productsPage' => \Request::get('productsPage')]);
 
-        //（仮）
-        $categorys = [
-            "スマートフォン",
-            "ゲーム",
-            "ノートPC・デスクトップ",
-            "PC関連",
-            "ファッション",
-            "フード",
-            "本",
-            "調理器具",
-            "スポーツ",
-            "アウトドア",
-            "",
-        ];
+        
 
-        return view('home', ['shops' => $shops, 'products' => $products, 'popular_products' => $popular_products, 'categorys' => $categorys]); // 取得したデータをトップページに渡し、表示する
+        $db_categories = Category::all();
+
+        $category_key = [];
+        $category_value = [];
+        foreach( $db_categories as $key => $value ) {
+            foreach( $value as $key2 => $value2) {
+                if($value2 == "id") {
+                    $category_key[] = $value['id'];
+                }
+                if($value2 == "category") {
+                    $category_value[] = $value['category'];
+                }
+            }
+        }
+        $categories = array_combine($category_key, $category_value);
+        
+
+        return view('home', ['shops' => $shops, 'products' => $products, 'popular_products' => $popular_products, 'categories' => $categories]); // 取得したデータをトップページに渡し、表示する
     }
+
+
+
 }

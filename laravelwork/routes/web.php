@@ -21,6 +21,12 @@ use App\Http\Controllers\ProductController;
 // トップページ(ショップ一覧、商品一覧を表示)
 Route::get('/', [HomeController::class, 'allList'])->name('home');
 
+// 検索機能
+Route::post('/search', [ProductController::class, 'search'])->name('search');
+
+// カテゴリー一覧
+Route::get('/category/{id}/{category}', [ProductController::class, 'category'])->name('category');
+
 // 新規登録フォーム
 Route::get('/register_form', [UserController::class, 'registerForm'])->name('register_form');
 
@@ -31,7 +37,7 @@ Route::post('/register', [UserController::class, 'register'])->name('register');
 Route::get('/login_form', [UserController::class, 'loginForm'])->name('login_form');
 
 // ログインの処理
-Route::get('/login', [UserController::class, 'login'])->name('login');
+// Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
 // ショップ詳細
@@ -40,11 +46,6 @@ Route::get('/shop/{id}/{name}', [ShopController::class, 'shopDetail'])->name('sh
 // 商品詳細
 Route::get('/product/{id}/{name}', [ProductController::class, 'productDetail'])->name('product_detail');
 
-// 商品購入画面の表示
-Route::get('/purchase_form/{id}/{name}', [ProductController::class, 'purchaseForm'])->name('purchase_form');
-
-// 商品の購入処理
-Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase');
 
     /**
      * 認証(ログイン)前と後でアクセス権限を分ける(ミドルウェア)
@@ -92,6 +93,12 @@ Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase
             // ショッピングカートの商品をすべて削除
             Route::post('/delete_all_shopping_cart', [ProductController::class, 'deleteAllShoppingCart'])->name('delete_all_shopping_cart');
 
+        // 商品購入画面の表示
+        Route::get('/purchase_form/{id}/{name}', [ProductController::class, 'purchaseForm'])->name('purchase_form');
+
+        // 商品の購入処理
+        Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase');
+
         // 購入履歴
         Route::get('/purchased_product/{id}/{name}', [ProductController::class, 'purchasedProduct'])->name('purchased_product');
 
@@ -116,6 +123,9 @@ Route::post('/purchase', [ProductController::class, 'purchase'])->name('purchase
 
         // 商品登録
         Route::post('/product_register', [ProductController::class, 'productRegister'])->name('product_register');
+
+        // CSV出力
+        Route::post('/csv_file', [ProductController::class, 'CSVFile'])->name('csv_file');
 
         // 商品の在庫数追加
         Route::post('/product_stock_add', [ProductController::class, 'productStockAdd'])->name('product_stock_add');

@@ -8,6 +8,12 @@
     <title>MyShops</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
+
     <h1>MyShops</h1>
     <a href="{{ route('home') }}">トップページへ戻る</a>
     <ul style="list-style: none;">
@@ -64,6 +70,7 @@
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
 
+    </main>
 
 </body>
 </html>

@@ -12,6 +12,14 @@ header {
     z-index: 100;
 }
 
+.under_header {
+    height: 8vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    position: fixed;
+}
+
 main {
     box-sizing: border-box;
     position: absolute;

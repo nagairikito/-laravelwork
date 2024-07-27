@@ -8,6 +8,11 @@
     <title>ご購入完了画面</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
     <h2>商品購入手続き完了のお知らせ</h2>
     <p>ご購入ありがとうございます。</p>
     <p>商品購入の手続きが完了いたしました。</p>
@@ -23,5 +28,7 @@
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
     
+    </main>
+
 </body>
 </html>

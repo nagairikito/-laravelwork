@@ -10,7 +10,11 @@
 </head>
 <body>
 
-    <h2>お気に入り商品</h2>
+    @include('parts.header')
+
+    <main>
+
+    <h1>お気に入り商品</h1>
 
     @if( session('delete_favorite_product_success') )
         <p class="success">{{ session('delete_favorite_product_success') }}</p>
@@ -53,6 +57,7 @@
     <br>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 </body>
 </html>

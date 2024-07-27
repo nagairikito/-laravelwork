@@ -67,6 +67,46 @@ class UserController extends Controller
         if( !Auth::user() ) {
             if( Auth::attempt($credntials) ) {
                 $user_info->session()->regenerate();
+
+                $user_id = Auth::user()->id;
+
+                // DBからお気に入り商品情報を取得
+                $favorite_products_info = Product::select([
+                    'p.id',
+                    'p.name',
+                    'p.price',
+                    'p.image',
+                ])
+                ->from('products as p')
+                ->join('favoriteproducts as fp', function($join) {
+                    $join->on('p.id', '=', 'fp.product_id');
+                })
+                ->where('fp.user_id', '=', $user_id)
+                ->get();
+    
+                if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
+                    $product_keys = [];
+                    $product_info = [];
+    
+                    foreach( $favorite_products_info as $favorite_product ) {
+                        $product_keys[] = $favorite_product->id;
+                        $product_info[] = $favorite_product;
+    
+                    }
+    
+                    $favorite_products = array_combine($product_keys, $product_info);
+
+                    foreach( $favorite_products as $key => $value ) {
+                        if( $value["image"] == null ) {
+                                $favorite_products[$key]["image"] = "no_image_logo.png";
+                        }
+                    }
+    
+    
+                    session(['favorite_products' => $favorite_products]);
+    
+                }
+                    
                 return redirect(route('home'))->with('login_success', 'ログインしました。');
             }
 

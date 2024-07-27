@@ -6,22 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Product extends Model
+
+class FavoriteProduct extends Model
 {
     use HasFactory;
 
-    protected $table = 'products';
+    protected $table = 'favoriteproducts';
 
     protected $fillable = 
     [
-        'shop_id',
-        'name',
-        'price',
-        'stock',
-        'discription',
-        'image',
-        'category_id',
+        'user_id',
+        'product_id',
     ];
-
-
+    
+    
 }

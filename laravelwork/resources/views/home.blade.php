@@ -10,37 +10,17 @@
 </head>
 <body>
 
-    <header>
-        <form class="search_var">
-            <input type="search" placeholder="商品名・ショップ名" style="width: 80%; height: 100%;">
-            <input type="submit" value="検索" style="width: 15%; height: 100%;">
-        </form>
-
-        @if ( is_null(Auth::user()) )
-                <p class="header_nav"><a href="{{ route('login_form') }}">ログイン</a></p>
-        @endif
-
-        @if ( Auth::user() )
-            <ul class="header_nav_auth">
-                <li><a href="{{ route('login_form') }}" >アカウント切り替え</a></li>
-                <li><a href="{{ route('shop_orner', [ Auth::user()->id ]) }}">ショップオーナー</a></li>
-                <li><a href="{{ route('favorite_product', [ Auth::user()->id ]) }}"><span style="font-size: 1.4em;">☆</span>お気に入り</a></li>
-                <li><a href="{{ route('shopping_cart', [ Auth::user()->id, Auth::user()->name ]) }}">🛒買い物カゴ</a></li>
-                <li><a href="{{ route('purchased_product', [ Auth::user()->id, Auth::user()->name ]) }}">🌐購入履歴</a></li>
-            </ul>
-        @endif
-
-
-    </header>
-
+    @include('parts.header')
+    
     <nav class="left_nav">
         <table border="0" style="position: absolute; left: 50%; transform: translate(-50%, 0); margin-top: 10px;">
-            @foreach( $categorys as $category )
+            @foreach( $categories as $id => $category )
             <tr>
-                <td><a href="">{{ $category }}</a></td>
+                <td><a href="{{ route('category', [$id, $category]) }}">{{ $category }}</a></td>
             </tr>
             @endforeach
         </table>
+
     </nav>
 
     <nav class="right_nav">
@@ -80,13 +60,6 @@
     </nav>
 
     <main>
-
-        <ul>
-            <li>登録した商品をcsv出力ができる。</li>
-            <li>カテゴリー付与</li>
-            <li></li>
-        </ul>
-
 
         @if ( session('login_success') ) <!-- ログイン成功時のメッセージ -->
         <p class="success">{{ session('login_success') }}</p>

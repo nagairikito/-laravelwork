@@ -8,6 +8,12 @@
     <title>ショップ編集フォーム</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     <h1>ショップ編集フォーム</h1>
@@ -38,6 +44,7 @@
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 </body>
 </html>

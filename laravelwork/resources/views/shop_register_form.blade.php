@@ -8,6 +8,12 @@
     <title>ショップ開設・登録フォーム</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     <h1>ショップ開設・登録フォーム</h1>
@@ -34,6 +40,8 @@
     </form>
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
+
+    </main>
 
 </body>
 </html>

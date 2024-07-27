@@ -6,7 +6,7 @@
     <!-- <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css"> リセットcss-->
     <link rel="stylesheet" href="{{ asset('/css/app.css') }}">
 
-    <title>購入履歴</title>
+    <title>{{ $title }}</title>
 </head>
 <body>
 
@@ -14,26 +14,36 @@
 
     <main>
 
-    <h1>購入履歴</h1>
-    @if( isset( $purchased_products ) )
+    <form class="" action="{{ route('search') }}" method="POST">
+    @csrf
+        <input type="search" name="keyword" placeholder="商品名・ショップ名" style="width: 15%; height: 100%;">
+        <input type="submit" value="検索" style="width: 15%; height: 100%;">
+    </form>
+
+    
+    @if( $result_count > 0 )
         <table border="1">
-            @foreach( $purchased_products as $product => $value )
+            @foreach( $result as $product => $value )
                 <tr>
                     <td>
                         <a href="{{ route('product_detail', [ $value['id'], $value['name'] ]) }}"><img class="" style="width: 200px;" src="{{ asset('storage/product_images/' . $value['image']) }}"></a>
                     </td>
                     <td>
-                        <p>{{ $value['name'] }}</p>
-                        <p style="color: red;">￥{{ $value['price'] }}円</p>
+                        <a href="{{ route('product_detail', [ $value['id'], $value['name'] ]) }}">
+                            <p>{{ $value['name'] }}</p>
+                            <p style="color: red;">￥{{ $value['price'] }}円</p>
+                            <p>{{ $value['shop_name'] }}</p>
+                        </a>
                     </td>
                 </tr>
             @endforeach
         </table>
+        {{ $result->links() }}
+
     @else
-        <p>購入履歴がありません。</p>
+        <p>該当する商品がありません。</p>
     @endif
 
-    <br>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     </main>

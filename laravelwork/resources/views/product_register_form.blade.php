@@ -8,6 +8,11 @@
     <title>商品登録フォーム</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
     
     <h1>商品登録フォーム</h1>
@@ -38,6 +43,17 @@
             <p style="color: red;">{{ $errors->first('stock') }}</p>
         @endif
 
+        <p>カテゴリー選択</p>
+        <select name="category_id">
+            <option value="">カテゴリーを選択してください</option>
+            @foreach( $categories as $id => $category )
+                <option value="{{ $id }}">{{ $category }}</option>
+            @endforeach
+        </select>
+        @if( $errors->has('category_id') )
+            <p style="color: red;">{{ $errors->first('category_id') }}</p>
+        @endif
+
         <p>自由記述欄</p>
         <textarea name="discription" rows="10" cols="100"></textarea><br>
 
@@ -49,6 +65,7 @@
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 </body>
 </html>

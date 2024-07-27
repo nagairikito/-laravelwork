@@ -6,13 +6,101 @@ use Illuminate\Http\Request;
 use withFileUploads;
 use App\Models\Product;
 use App\Models\Shop;
+use App\Models\Category;
+use App\Models\FavoriteProduct;
+use App\Models\ShoppingCart;
+// use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ProductRegisterRequest;
 
-
 class ProductController extends Controller
 {
+    /**
+     * 検索機能
+     */
+    public function search(Request $request) {
+        $keyword = $request->input('keyword');
+        if( !empty($keyword) ) {
+            $result = Product::select([
+                'p.id',
+                'p.shop_id',
+                'p.name',
+                'p.price',
+                'p.stock',
+                'p.discription',
+                'p.image',
+                'p.access_count',
+                's.name as shop_name',
+            ])
+            ->from('products as p')
+            ->join('shops as s', function($join) {
+                $join->on('p.shop_id', '=', 's.id');
+            })
+            ->where('p.name', 'LIKE', "%{$keyword}%")
+            ->orWhere('s.name', 'LIKE', "%{$keyword}%")
+            ->paginate(10);
+
+            // $posts = $result->paginate(10);
+            foreach( $result as $key => $product_info) {
+                if( $product_info['image'] == null ) {
+                    $product_info['image'] = 'no_image_logo.png';
+                }
+    
+            }
+
+            $result_count = count($result);
+            return view('search_result', ['keyword' => $keyword, 'result' => $result, 'result_count' => $result_count]);
+
+        }
+
+        return redirect( route('home') );
+    }
+
+
+    /**
+     * カテゴリー別商品の表示
+     */
+    public function category($request) {
+        $result = Product::select([
+            'p.id',
+            'p.shop_id',
+            'p.name',
+            'p.price',
+            'p.stock',
+            'p.discription',
+            'p.image',
+            'p.access_count',
+            's.name as shop_name',
+            'p.category_id',
+            'c.category',
+        ])
+        ->from('products as p')
+        ->join('shops as s', function($join) {
+            $join->on('p.shop_id', '=', 's.id');
+        })
+        ->join('categories as c', function($join) {
+            $join->on('p.category_id', '=', 'c.id');
+        })
+        ->where('p.category_id', '=', $request)
+        ->paginate(10);
+
+
+        foreach( $result as $key => $product_info) {
+            if( $product_info['image'] == null ) {
+                $product_info['image'] = 'no_image_logo.png';
+            }
+        }
+
+        $title = $result['p.category'];
+        $result_count = count($result);
+
+        return view('category_product', ['result' => $result, 'title' => $title, 'result_count' => $result_count]);
+        
+    }
+
+
     /**
      * 商品詳細を表示
      * 
@@ -20,7 +108,7 @@ class ProductController extends Controller
      */
     public function productDetail($id) {
         $product = Product::find($id);
-        
+
         if ( is_null($product) ) {
             \Session::flash('productDetail_err_msg', '商品情報がありません。');
             return redirect(route('home'));
@@ -30,7 +118,7 @@ class ProductController extends Controller
         Product::where('id', '=', $id)->update(['access_count' => $update_access_count]);
 
         $shop_id = $product->shop_id;
-        $shop_name = Shop::find($shop_id)->name;
+        $shop = Shop::find($shop_id);
 
         $favorite_flag = false;
         if( session()->has('favorite_products') ) {
@@ -40,7 +128,7 @@ class ProductController extends Controller
             }
         }
 
-        return view('product', ['product' => $product, 'shop_name' => $shop_name, 'favorite_flag' => $favorite_flag]);
+        return view('product', ['product' => $product, 'shop' => $shop, 'favorite_flag' => $favorite_flag]);
 
     }
 
@@ -49,6 +137,45 @@ class ProductController extends Controller
      **/ 
         // お気に入り商品画面の表示
         public function favoriteProduct() {
+            $user_id = Auth::user()->id;
+
+            // DBからお気に入り商品情報を取得
+            $favorite_products_info = Product::select([
+                'p.id',
+                'p.name',
+                'p.price',
+                'p.image',
+            ])
+            ->from('products as p')
+            ->join('favoriteproducts as fp', function($join) {
+                $join->on('p.id', '=', 'fp.product_id');
+            })
+            ->where('fp.user_id', '=', $user_id)
+            ->get();
+
+
+            // if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
+                $product_keys = [];
+                $product_info = [];
+
+                foreach( $favorite_products_info as $favorite_product ) {
+                    $product_keys[] = $favorite_product->id;
+                    $product_info[] = $favorite_product;
+
+                }
+
+                $favorite_products = array_combine($product_keys, $product_info);
+
+                foreach( $favorite_products as $key => $value ) {
+                    if( $value["image"] == null ) {
+                            $favorite_products[$key]["image"] = "no_image_logo.png";
+                    }
+                }
+
+                session(['favorite_products' => $favorite_products]);
+
+            // }
+
             $favorite_products = session('favorite_products');
 
             // if( !is_null($favorite_products) ) {
@@ -78,10 +205,11 @@ class ProductController extends Controller
 
         // お気に入り商品の追加
         public function addFavoriteProduct(Request $request) {
-
             // ユーザーからのリクエスト
-            $add_product_id = $request->id;
+            $add_product_id = $request->id;            
+            $user_id = Auth::user()->id;
 
+            // お気に入りに追加する商品情報
             $product = Product::find($add_product_id);
 
             $add_product = [
@@ -89,18 +217,64 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'price' => $product->price,
                 'image' => $product->image,
-                'num' => $product->num,
+                // 'num' => $product->num,
             ];
 
             if( $add_product['image'] == null ) {
                 $add_product['image'] = "no_image_logo.png";
-            }
+            }            
 
+            // DBからお気に入り商品情報を取得
+            $favorite_products_info = Product::select([
+                'p.id',
+                'p.name',
+                'p.price',
+                'p.image',
+            ])
+            ->from('products as p')
+            ->join('favoriteproducts as fp', function($join) {
+                $join->on('p.id', '=', 'fp.product_id');
+            })
+            ->where('fp.user_id', '=', $user_id)
+            ->get();
+
+
+            // if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
+                $product_keys = [];
+                $product_info = [];
+
+                foreach( $favorite_products_info as $favorite_product ) {
+                    $product_keys[] = $favorite_product->id;
+                    $product_info[] = $favorite_product;
+
+                }
+
+                $favorite_products = array_combine($product_keys, $product_info);
+
+                foreach( $favorite_products as $key => $value ) {
+                    if( $value["image"] == null ) {
+                            $favorite_products[$key]["image"] = "no_image_logo.png";
+                    }
+                }
+
+                session(['favorite_products' => $favorite_products]);
+
+            // }
+
+
+            // お気に入り追加処理
             if( !session()->has('favorite_products') ) {
                 // セッションにお気に入り商品が存在しないとき
                 $favorite_products = [];
                 $favorite_products[$add_product_id] = $add_product;
                 session(['favorite_products' => $favorite_products]);
+
+                // お気に入り商品をDBにも登録する
+                FavoriteProduct::query()->create([
+                    'user_id' => $user_id,
+                    'product_id' => $add_product_id,
+                ]);
+
                 return back()->with('favorite_success', '商品をお気に入り登録しました。');
 
 
@@ -116,18 +290,25 @@ class ProductController extends Controller
                     // セッションにお気に入りが存在しており、商品がお気に入り登録されているとき
                         // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
                         foreach( $favorite_products as $key => $value ) {
-                            $product_keys[] = $key;
-                            $product_values[] = $value;
+                            $product_keys2[] = $key;
+                            $product_values2[] = $value;
         
                         }
-                        array_push($product_keys, $add_product_id);
-                        array_push($product_values, $add_product);
-        
-                        $favorite_products = array_combine($product_keys, $product_values);
+                        array_push($product_keys2, $add_product_id);
+                        array_push($product_values2, $add_product);
+
+                        $favorite_products = array_combine($product_keys2, $product_values2);
 
                 }
 
                 session(['favorite_products' => $favorite_products]);
+
+                // お気に入り商品をDBにも登録する
+                FavoriteProduct::query()->create([
+                    'user_id' => $user_id,
+                    'product_id' => $add_product_id,
+                ]);
+                
 
                 return back()->with('favorite_success', '商品をお気に入り登録しました。');
             }
@@ -139,18 +320,21 @@ class ProductController extends Controller
             $delete_product_id = $request->session_favorite_product_id;
     
             $favorite_products = session('favorite_products');
-            $favorite_product_num = count($favorite_products);
+            // $favorite_product_num = count($favorite_products);
             
     
             if( array_key_exists($delete_product_id, $favorite_products) ) {
                 unset($favorite_products[$delete_product_id]);
+
                 session(['favorite_products' => $favorite_products]);
     
-                $favorite_product_num = count($favorite_products);
-                if( $favorite_product_num == 0 ) {
-                    unset($favorite_products);
-                    session()->forget('favorite_products');
-                }
+                FavoriteProduct::where('user_id', Auth::user()->id)->where('product_id', $delete_product_id)->delete();
+
+                // $favorite_product_num = count($favorite_products);
+                // if( $favorite_product_num == 0 ) {
+                //     unset($favorite_products);
+                //     session()->forget('favorite_products');
+                // }
     
                 return back()->with('delete_favorite_product_success', '商品のお気に入りを解除しました。');
             } else {
@@ -161,6 +345,9 @@ class ProductController extends Controller
         // お気に入り商品をすべて削除
         public function deleteAllFavoriteProduct() {
             session()->forget('favorite_products');
+
+            FavoriteProduct::where('user_id', Auth::user()->id)->delete();
+
             return back()->with('delete_favorite_product_success', 'すべての商品のお気に入りを解除しました。');
         }
                 
@@ -173,52 +360,14 @@ class ProductController extends Controller
      */
     public function purchaseForm($id) {
         $product = Product::find($id);
-        return view('purchase_form', ['product' => $product]);
+
+        $shop_id = $product->shop_id;
+        $shop = Shop::find($shop_id);
+        $shop_user_id = $shop->user_id;
+
+        return view('purchase_form', ['product' => $product, 'shop_user_id' => $shop_user_id]);
     }
 
-    /**
-     * 商品購入処理
-     * 
-     */
-    // public function purchase(Request $request) {
-    //     $id = $request->id;
-    //     $number_sold = $request->number_sold;
-    //     $product = Product::find($id);
-    //     $stock = $product->stock;
-
-    //     if ($stock < $number_sold) {
-    //         return back()->with('stock_error', '在庫がありません。');
-    //     } else {
-    //         $update_stock = $stock - $number_sold;
-    //     // dd($update_stock);    
-
-
-
-    //         // Product::update('products')
-    //         // ->set('stock', '=', $update_stock)
-    //         // ->where('id', '=', $id)
-    //         // ->save();
-
-    //         \DB::beginTransaction();
-    //         try {
-    //             \DB::table('products')
-    //             ->where('id', $id)
-    //             ->update([
-    //                 'stock' => $update_stock,
-    //             ]);
-
-    //             \DB::commit();
-    //             return view('purchased');
-
-    //         } catch(\Throwable $e) {
-    //             \DB::rollback();
-    //             abort(500);
-    //         }
-
-
-    //     }
-
-    // }
 
     public function purchase(Request $request) {
         // ショッピングカートに商品が存在しない状態で購入ボタンが押されたとき
@@ -553,8 +702,26 @@ class ProductController extends Controller
      * 
      */
     public function productRegisterForm($shop_id) {
+
         $int_shop_id = intval($shop_id);
-        return view('product_register_form', ['shop_id' => $int_shop_id]);
+
+        $db_categories = Category::all();
+
+        $category_key = [];
+        $category_value = [];
+        foreach( $db_categories as $key => $value ) {
+            foreach( $value as $key2 => $value2) {
+                if($value2 == "id") {
+                    $category_key[] = $value['id'];
+                }
+                if($value2 == "category") {
+                    $category_value[] = $value['category'];
+                }
+            }
+        }
+        $categories = array_combine($category_key, $category_value);
+
+        return view('product_register_form', ['shop_id' => $int_shop_id, 'categories' => $categories]);
     }
 
     /**
@@ -592,6 +759,7 @@ class ProductController extends Controller
                         'stock' => $request['stock'], 
                         'discription' => $request['discription'],
                         'image' => $request['image'],
+                        'category_id' => $request['category_id'],
                     ]);
                 } else {
                     return back()->with('product_register_err', 'エラーが発生しました。');
@@ -602,6 +770,91 @@ class ProductController extends Controller
         } else {
             return back()->with('product_register_err', 'エラーが発生しました。');
         }
+
+    }
+
+    /**
+     * CSV出力
+     */
+    public function CSVFile(Request $request) {
+        $product_exist_flag = $request->product_exist_flag;
+        if( $product_exist_flag == false ) {
+            return back()->with('csv_fail', '商品情報がありません。');
+        }
+
+        $shop_id = intval($request->shop_id);
+        $shop_name = $request->shop_name;
+        
+        // DBからカラム情報を取得
+        $column_data = DB::select("show full columns from products");
+        $columns = [];
+        foreach( $column_data as $key => $value ) {
+            $column = $value->Field;
+            $columns[] = $column;
+        }
+
+        // shopに紐づいている商品をすべて取得
+        $products = Product::select([
+            'id',
+            'shop_id',
+            'name',
+            'price',
+            'stock',
+            'discription',
+            'image',
+            'category_id',
+            'access_count',
+            'created_at',
+            'updated_at',
+        ])
+        ->from('products')
+        ->where('shop_id', '=', $shop_id)
+        ->get();
+
+
+        $csv_data = [];
+        $product_info = [];
+        foreach( $products as $key => $product ) {
+            foreach( $columns as $key => $column_name ) {
+                $product_info[] = $product->$column_name;
+
+            }
+            $csv_data[] = $product_info;
+            $product_info = [];
+        }
+
+        // DBのカラム情報とshopに紐づいている商品のデータを結合
+        array_unshift($csv_data, $columns);
+
+        // CSVファイルの作成と出力
+        $file_name = $shop_name . ".scv";
+        $url = "./" . $file_name;
+    
+        if( file_exists($url) ) {
+            unlink($url);
+        }
+
+        foreach( $csv_data as $key => $value ) {
+            $column_count = count($value);
+            foreach( $value as $key => $value ) {
+                // $csv = mb_convert_variables('SJIS', 'UTF-8', $value);
+                $csv = mb_convert_encoding($value, 'SJIS', 'UTF-8');
+
+                $fp = fopen($url, "a");
+                if($fp) {
+                    if( is_null($csv) ) {
+                        $csv = " "; 
+                    }
+                    fwrite($fp, $csv . ",");
+                    if( $key == $column_count - 1 ) {
+                        fwrite($fp, "\n");
+                    }
+                    fclose($fp);
+                }
+            }
+        }
+
+        return back()->with('csv_success', 'CSV出力しました。');
 
     }
 

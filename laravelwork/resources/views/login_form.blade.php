@@ -8,10 +8,15 @@
     <title>ログイン画面</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     <h1>ログインフォーム</h1>
-
+    
     @if( session('login_error') ) <!-- ログイン失敗時のエラーメッセージ -->
         <p class="fail">{{ session('login_error') }}</p>
     @endif
@@ -38,6 +43,8 @@
     </form>
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
+
+    </main>
 
 </body>
 </html>

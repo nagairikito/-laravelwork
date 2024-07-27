@@ -8,9 +8,15 @@
     <title>商品編集フォーム</title>
 </head>
 <body>
+
+    @include('parts.header')
+    
+    <main>
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
     
     <h1>商品編集フォーム</h1>
+
 
     @if( session('product_edit_err') ) 
         <p style="color: red;">{{ session('product_edit_err') }}</p>
@@ -51,6 +57,7 @@
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 
 </body>

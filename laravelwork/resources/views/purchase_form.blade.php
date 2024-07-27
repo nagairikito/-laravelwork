@@ -8,6 +8,11 @@
     <title>商品購入画面</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
     <p>{{ $product->name }}</p>
 
     @if( session('cart_success') )
@@ -46,6 +51,7 @@
 
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
+    </main>
 
 </body>
 </html>

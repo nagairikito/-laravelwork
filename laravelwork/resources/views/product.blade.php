@@ -8,6 +8,11 @@
     <title>{{ $product->name }}</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
     @if( session('favorite_success') )
@@ -51,11 +56,11 @@
     @endif
 
     <p style="color: red;">￥{{ $product->price }}円</p>
-    <p>販売元：{{ $shop_name }}</p>
+    <p>販売元：{{ $shop->name }}</p>
         <h2>商品情報</h2>
         <p>{{ $product->discription }}</p><br>
         
-        @if( $product->stock > 0 )
+        @if( $product->stock > 0 && $shop->user_id !== Auth::user()->id )
             <form action="{{ route('add_shopping_cart') }}" method="POST">
             @csrf
                 <input type="hidden" name="id" value="{{ $product->id }}">
@@ -70,11 +75,15 @@
 
         @elseif( $product->stock == 0 )
             <button class="sold_out">SOLD OUT</button>
+        @elseif( $shop->user_id == Auth::user()->id )
+            <button class="sold_out">購入</button>
+            <p class="fail">自身の商品は購入できません。</p>
         @endif
 
         <br>
         <a href="{{ route('home') }}">トップページへ戻る</a>
 
+        </main>
 
 </body>
 </html>

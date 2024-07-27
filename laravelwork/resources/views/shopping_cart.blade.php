@@ -8,6 +8,12 @@
     <title>ショッピングカート</title>
 </head>
 <body>
+
+    @include('parts.header')
+
+    <main>
+
+
     <h1>ショッピングカート</h1>
 
     @if( session('delete_shopping_cart_success') )
@@ -66,6 +72,6 @@
     <br>
     <a href="{{ route('home') }}">トップページへ戻る</a>
 
-
+</main>
 </body>
 </html>

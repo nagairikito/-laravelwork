@@ -29,6 +29,7 @@ class ProductRegisterRequest extends FormRequest
             'name' => 'required | max:255',
             'price' => 'required',
             'stock' => 'required',
+            'category_id' => 'required',
             // 'discription' => 'required',
         ];
     }
