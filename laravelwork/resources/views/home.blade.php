@@ -81,6 +81,10 @@
             <p class="fail">{{ session('user_shop_error') }}</p>
         @endif
 
+        @if( session('purchased_error') )
+            <p class="fail">{{ session('purchased_error') }}</p>
+        @endif
+
 
         <h2>ショップ一覧</h2>
         <div>

@@ -33,7 +33,7 @@
         <p class="fail">{{ session('purchase_error_only') }}</p>
     @endif
 
-    @if( isset( $shopping_cart ) )
+    @if( count( $shopping_cart ) > 0 )
         <form action="{{ route('delete_all_shopping_cart') }}" method="POST">
         @csrf
             <input type="submit" value="カート内の商品を空にする">

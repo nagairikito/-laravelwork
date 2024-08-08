@@ -24,7 +24,7 @@
         <p class="fail">{{ session('delete_favorite_product_failed') }}</p>
     @endif
 
-    @if( isset( $favorite_products ) )
+    @if( count( $favorite_products ) > 0 )
         <form action="{{ route('delete_all_favorite_product') }}" method="POST">
         @csrf
             <input type="submit" value="お気に入りを空にする">

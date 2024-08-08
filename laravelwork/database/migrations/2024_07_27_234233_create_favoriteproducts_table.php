@@ -13,8 +13,8 @@ return new class extends Migration
     {
         if(!Schema::hasTable('favoriteproducts')) {
             Schema::create('favoriteproducts', function (Blueprint $table) {
-                $table->user_id();
-                $table->product_id();
+                $table->integer('user_id');
+                $table->integer('product_id');
                 $table->timestamps();
             });
         }

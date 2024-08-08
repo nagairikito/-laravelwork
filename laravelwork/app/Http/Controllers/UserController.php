@@ -9,6 +9,9 @@ use App\Http\Requests\UserRegisterRequest;
 use App\Models\User;
 use App\Models\Shop;
 use App\Models\Product;
+use App\Models\PurchasedProduct;
+use App\Models\FavoriteProduct;
+use App\Models\ShoppingCart;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -84,7 +87,10 @@ class UserController extends Controller
                 ->where('fp.user_id', '=', $user_id)
                 ->get();
     
-                if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
+                // if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
+                if( empty($favorite_products_info) ) {
+                    $favorite_products = [];
+                } else {
                     $product_keys = [];
                     $product_info = [];
     
@@ -101,12 +107,95 @@ class UserController extends Controller
                                 $favorite_products[$key]["image"] = "no_image_logo.png";
                         }
                     }
+                }
     
+                session(['favorite_products' => $favorite_products]);
+
+                
+
+
+                // DBから購入履歴情報を取得
+                $purchased_products_info = PurchasedProduct::select([
+                    'p.id',
+                    'p.name',
+                    'p.price',
+                    'p.image',
+                ])
+                ->from('products as p')
+                ->join('purchasedproducts as pp', function($join) {
+                    $join->on('p.id', '=', 'pp.product_id');
+                })
+                ->where('pp.user_id', '=', $user_id)
+                ->get();
+        
+        
+                if( empty($purchased_products_info) ) {
+                    $purchased_products = [];
+                } else {
+                    $product_keys = [];
+                    $product_info = [];
+        
+                    foreach( $purchased_products_info as $purchased_product ) {
+                        $product_keys[] = $purchased_product->id;
+                        $product_info[] = $purchased_product;
+        
+                    }
+        
+                    $purchased_products = array_combine($product_keys, $product_info);
+        
+                    foreach( $purchased_products as $key => $value ) {
+                        if( $value["image"] == null ) {
+                            $purchased_products[$key]["image"] = "no_image_logo.png";
+                        }
+                    }
+                }
+                
+                session(['purchased_products' => $purchased_products]);
+            
     
-                    session(['favorite_products' => $favorite_products]);
-    
+                
+                
+
+                // DBからショッピングカート情報を取得
+                $shopping_cart_info = ShoppingCart::select([
+                    'p.id',
+                    'p.name',
+                    'p.price',
+                    'p.image',
+                    'sc.num',
+                ])
+                ->from('products as p')
+                ->join('shoppingcart as sc', function($join) {
+                    $join->on('p.id', '=', 'sc.product_id');
+                })
+                ->where('sc.user_id', '=', $user_id)
+                ->get();
+        
+        
+                if( empty($shopping_cart_info) ) {
+                    $shopping_cart = [];
+                } else {
+                    $product_keys = [];
+                    $product_info = [];
+        
+                    foreach( $shopping_cart_info as $shopping_cart_product ) {
+                        $product_keys[] = $shopping_cart_product->id;
+                        $product_info[] = $shopping_cart_product;
+        
+                    }
+        
+                    $shopping_cart = array_combine($product_keys, $product_info);
+        
+                    foreach( $shopping_cart as $key => $value ) {
+                        if( $value["image"] == null ) {
+                                $purchased_products[$key]["image"] = "no_image_logo.png";
+                        }
+                    }
+        
                 }
                     
+                session(['shopping_cart' => $shopping_cart]);
+
                 return redirect(route('home'))->with('login_success', 'ログインしました。');
             }
 
@@ -117,6 +206,8 @@ class UserController extends Controller
 
             if( Auth::attempt($credntials) ) {
                 $user_info->session()->regenerate();
+
+
                 return redirect(route('home'))->with('login_success', 'アカウントを変更しました。');
             }
 

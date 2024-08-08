@@ -59,25 +59,37 @@
     <p>販売元：{{ $shop->name }}</p>
         <h2>商品情報</h2>
         <p>{{ $product->discription }}</p><br>
-        
-        @if( $product->stock > 0 && $shop->user_id !== Auth::user()->id )
-            <form action="{{ route('add_shopping_cart') }}" method="POST">
-            @csrf
-                <input type="hidden" name="id" value="{{ $product->id }}">
-                <input type="hidden" name="name" value="{{ $product->name }}">
-                <input type="hidden" name="price" value="{{ $product->price }}">
-                <input type="hidden" name="image" value="{{ $product->image }}">
-                <p>個数:<input type="number" name="num" value=1 min=1 max=99></p>
-                <input type="submit" name="incart" value="カートに入れる"><br><br>
-            </form>
 
-            <button><a href="/purchase_form/{{ $product->id }}/{{ $product->name }}">購入</a></button>
+        @if( Auth::user() )
+            @if( $product->stock > 0 && $shop->user_id !== Auth::user()->id )
+                <form action="{{ route('add_shopping_cart') }}" method="POST">
+                @csrf
+                    <input type="hidden" name="id" value="{{ $product->id }}">
+                    <input type="hidden" name="name" value="{{ $product->name }}">
+                    <input type="hidden" name="price" value="{{ $product->price }}">
+                    <input type="hidden" name="image" value="{{ $product->image }}">
+                    <p>個数:<input type="number" name="num" value=1 min=1 max=99></p>
+                    <input type="submit" name="incart" value="カートに入れる"><br><br>
+                </form>
 
-        @elseif( $product->stock == 0 )
-            <button class="sold_out">SOLD OUT</button>
-        @elseif( $shop->user_id == Auth::user()->id )
-            <button class="sold_out">購入</button>
-            <p class="fail">自身の商品は購入できません。</p>
+                <button><a href="/purchase_form/{{ $product->id }}/{{ $product->name }}">購入</a></button>
+
+            @elseif( $product->stock == 0 )
+                <button class="sold_out">SOLD OUT</button>
+            @elseif( $shop->user_id == Auth::user()->id )
+                <button class="sold_out">購入</button>
+                <p class="fail">自身の商品は購入できません。</p>
+            @endif
+        @else
+                <form action="{{ route('login_form') }}" method="GET">
+                @csrf
+                    <p>個数:<input type="number" value=1 min=1 max=99></p>
+                    <input type="submit" value="カートに入れる"><br><br>
+                </form>
+
+                <button><a href="{{ route('login_form') }}">購入</a></button>
+
+
         @endif
 
         <br>

@@ -9,6 +9,7 @@ use App\Models\Shop;
 use App\Models\Category;
 use App\Models\FavoriteProduct;
 use App\Models\ShoppingCart;
+use App\Models\PurchasedProduct;
 // use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -154,52 +155,29 @@ class ProductController extends Controller
             ->get();
 
 
-            // if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
-                $product_keys = [];
-                $product_info = [];
+            $product_keys = [];
+            $product_info = [];
 
-                foreach( $favorite_products_info as $favorite_product ) {
-                    $product_keys[] = $favorite_product->id;
-                    $product_info[] = $favorite_product;
+            foreach( $favorite_products_info as $favorite_product ) {
+                $product_keys[] = $favorite_product->id;
+                $product_info[] = $favorite_product;
 
+            }
+
+            $favorite_products = array_combine($product_keys, $product_info);
+
+            foreach( $favorite_products as $key => $value ) {
+                if( $value["image"] == null ) {
+                        $favorite_products[$key]["image"] = "no_image_logo.png";
                 }
+            }
 
-                $favorite_products = array_combine($product_keys, $product_info);
+            session(['favorite_products' => $favorite_products]);
 
-                foreach( $favorite_products as $key => $value ) {
-                    if( $value["image"] == null ) {
-                            $favorite_products[$key]["image"] = "no_image_logo.png";
-                    }
-                }
-
-                session(['favorite_products' => $favorite_products]);
-
-            // }
 
             $favorite_products = session('favorite_products');
-
-            // if( !is_null($favorite_products) ) {
-            //     $product_id_array = [];
-            //     foreach( $favorite_products as $key => $value ) {
-            //         $product_id_array[] = $key;
-            //     }
-        
-            //     $product_price_array = [];
-            //     $product_count_array = [];
-            //     foreach( $product_id_array as $value ) {
-            //         $price = $favorite_products[$value]['price'];
-            //         $num = $favorite_products[$value]['num'];
-            //         $product_price = $price * $num;
-            //         $product_price_array[] = $product_price;
-            //         $product_count_array[] = $num;
-            //     }
-        
-        
-                return view('favorite_product', ['favorite_products' => $favorite_products]);
-
-            // } else {
-            //     return view('favorite_product', ['fovorite_products' => $favorite_products]);
-            // }
+       
+            return view('favorite_product', ['favorite_products' => $favorite_products]);
 
         }
 
@@ -217,7 +195,6 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'price' => $product->price,
                 'image' => $product->image,
-                // 'num' => $product->num,
             ];
 
             if( $add_product['image'] == null ) {
@@ -239,7 +216,6 @@ class ProductController extends Controller
             ->get();
 
 
-            // if( count($favorite_products_info) > 0 && !session()->has('favorite_products') ) {
                 $product_keys = [];
                 $product_info = [];
 
@@ -320,7 +296,6 @@ class ProductController extends Controller
             $delete_product_id = $request->session_favorite_product_id;
     
             $favorite_products = session('favorite_products');
-            // $favorite_product_num = count($favorite_products);
             
     
             if( array_key_exists($delete_product_id, $favorite_products) ) {
@@ -330,11 +305,6 @@ class ProductController extends Controller
     
                 FavoriteProduct::where('user_id', Auth::user()->id)->where('product_id', $delete_product_id)->delete();
 
-                // $favorite_product_num = count($favorite_products);
-                // if( $favorite_product_num == 0 ) {
-                //     unset($favorite_products);
-                //     session()->forget('favorite_products');
-                // }
     
                 return back()->with('delete_favorite_product_success', '商品のお気に入りを解除しました。');
             } else {
@@ -369,47 +339,161 @@ class ProductController extends Controller
     }
 
 
+    /**
+     * 商品購入処理
+     */
     public function purchase(Request $request) {
+        $user_id = Auth::user()->id;
+
+        // DBからショッピングカート情報を取得
+        $shopping_cart_info = ShoppingCart::select([
+            'p.id',
+            'p.name',
+            'p.price',
+            'p.image',
+            'sc.num',
+        ])
+        ->from('products as p')
+        ->join('shoppingcart as sc', function($join) {
+            $join->on('p.id', '=', 'sc.product_id');
+        })
+        ->where('sc.user_id', '=', $user_id)
+        ->get();
+
+        if( empty($shopping_cart_info) ) {
+            $shopping_cart = [];
+        } else {
+
+            $product_keys = [];
+            $product_info = [];
+
+            foreach( $shopping_cart_info as $shopping_cart_product ) {
+                $product_keys[] = $shopping_cart_product->id;
+                $product_info[] = $shopping_cart_product;
+
+            }
+
+            $shopping_cart = array_combine($product_keys, $product_info);
+
+            foreach( $shopping_cart as $key => $value ) {
+                if( $value["image"] == null ) {
+                    $shopping_cart[$key]["image"] = "no_image_logo.png";
+                }
+            }
+        }
+        session(['shopping_cart' => $shopping_cart]);
+
+
+        // DBから購入履歴情報を取得
+        $db_purchased_products_info = PurchasedProduct::select([
+            'p.id',
+            'p.name',
+            'p.price',
+            'p.image',
+        ])
+        ->from('products as p')
+        ->join('purchasedproducts as pp', function($join) {
+            $join->on('p.id', '=', 'pp.product_id');
+        })
+        ->where('pp.user_id', '=', $user_id)
+        ->get();
+
+        if( empty($db_purchased_product_info) ) {
+            $purchased_products = [];
+        } else {
+            $product_keys = [];
+            $product_info = [];
+
+            foreach( $db_purchased_products_info as $db_purchased_product ) {
+                $product_keys[] = $db_purchased_product->id;
+                $product_info[] = $db_purchased_product;
+
+            }
+
+            $purchased_products = array_combine($product_keys, $product_info);
+
+            foreach( $purchased_products as $key => $value ) {
+                if( $value["image"] == null ) {
+                    $purchased_products[$key]["image"] = "no_image_logo.png";
+                }
+            }
+        }
+        session(['purchased_products' => $purchased_products]);
+
+
         // ショッピングカートに商品が存在しない状態で購入ボタンが押されたとき
-        if( !session()->has('shopping_cart') && isset($request->id)) {
+        if( empty($shopping_cart) && isset($request->id)) {
+
             $id = $request->id;
             $num= $request->num;
             $product = Product::find($id);
             $stock = $product->stock;
 
             if ($stock < $num) {
+                // 在庫数が購入数を上回ったとき
                 return back()->with('stock_error', '在庫がありません。');
             } else {
+                // 在庫数が問題ない場合
                 $update_stock = $stock - $num;
     
-                \DB::beginTransaction();
-                try {
-                    \DB::table('products')
-                    ->where('id', $id)
-                    ->update([
-                        'stock' => $update_stock,
-                    ]);
+                // DBに上書き
+                Product::where('id', '=', $id)
+                ->update([
+                    'stock' => $update_stock,
+                ]);
 
-                    if( !session()->has('purchased_products') ) {
-                        $purchased_products[] = $id;
-                    } else {
-                        $purchased_products = session('purchased_products');
-                        $purchased_products[] = $id;
-                    }
-                    session(['purchased_products' => $purchased_products]);
-    
-                    \DB::commit();
-                    return view('purchased');
-    
-                } catch(\Throwable $e) {
-                    \DB::rollback();
-                    abort(500);
+                // 購入した商品の情報
+                $purchased_product = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'image' => $product->image,
+                ];
+                if( $purchased_product['image'] == null ) {
+                    $purchased_product['image'] = "no_image_logo.png";
                 }
+
+
+                if( empty( $purchased_products ) ) {
+                    $purchased_products = [];
+                    $purchased_products[$id] = $purchased_product;
+                } else {
+                    $product_keys = [];
+                    $product_values = [];
+        
+                    foreach( $db_purchased_products_info as $db_purchased_product ) {
+                        $product_keys[] = $db_purchased_product->id;
+                        $product_values[] = $db_purchased_product;
+        
+                    }
+                    array_push($product_keys, $purchased_product['id']);
+                    array_push($product_values, $purchased_product);
+    
+        
+                    $purchased_products = array_combine($product_keys, $product_info);
+        
+                    foreach( $purchased_products as $key => $value ) {
+                        if( $value["image"] == null ) {
+                            $purchased_products[$key]["image"] = "no_image_logo.png";
+                        }
+                    }
+
+                }
+
+                // DBに購入履歴を記録する
+                PurchasedProduct::create([
+                    'user_id' => $user_id,
+                    'product_id' => $id,
+                ]);
+
+                session(['purchased_products' => $purchased_products]);
+    
+                return view('purchased');
+    
             }
 
         // すでにショッピングカートが存在している状態で商品の単発購入ボタンが押されたとき
-        } elseif( session()->has('shopping_cart') && isset($request->id) ) {
-            $shopping_cart = session('shopping_cart');
+        } elseif( !empty($shopping_cart) && isset($request->id) ) {
 
             $add_product_id = $request->id;
             $product = Product::find($add_product_id);
@@ -427,21 +511,39 @@ class ProductController extends Controller
     
 
 
-            // セッションにショッピングカートが存在しており、カート内に商品が入っているとき
+            // ショッピングカートに商品が存在している場合
             if( array_key_exists($add_product_id, $shopping_cart) ) {
                 // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
-                $shopping_cart[$add_product_id]['num'] += $request->num;
+                $update_num = $shopping_cart[$add_product_id]['num'] + $request->num;
+                $shopping_cart[$add_product_id]['num'] = $update_num;
+
+                // DBにも上書きする
+                ShoppingCart::where('user_id', '=', $user_id)
+                ->where('product_id', '=', $add_product_id)
+                ->update([
+                    'num' => $update_num,
+                ]);
+
             } else {
                 // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
+                $product_keys = [];
+                $product_values = [];
                 foreach( $shopping_cart as $key => $value ) {
                     $product_keys[] = $key;
                     $product_values[] = $value;
-
                 }
+
                 array_push($product_keys, $add_product_id);
                 array_push($product_values, $add_product);
 
                 $shopping_cart = array_combine($product_keys, $product_values);
+
+                // DBにも記録する
+                ShoppingCart::create([
+                    'user_id' => $user_id,
+                    'product_id' => $add_product_id,
+                    'num' => $add_product['num'],
+                ]);
 
             }
 
@@ -449,9 +551,9 @@ class ProductController extends Controller
             return redirect( route('shopping_cart', [ Auth::user()->id, Auth::user()->name ]) );
 
 
-        } elseif( session()->has('shopping_cart') ) {
+        } elseif( isset($shopping_cart) && is_null($request->id) ) {
         // 商品がショッピングカートに存在している状態で購入ボタンが押されたとき
-        
+
             $shopping_cart = session('shopping_cart');
 
             $shopping_cart_only_flag = false;
@@ -466,8 +568,8 @@ class ProductController extends Controller
 
             $num_array = [];
             foreach($id_array as $key => $value) {
-                $num_value = 'num'.$value;
-                $num_array[] = $request->$num_value;
+                $num_value = 'num'.$value; // ここの処理はshopping_cart.blade.phpのformのname="{{ 'num' . $value['id'] }}"を$num_valueという変数に格納している
+                $num_array[] = $request->$num_value; // そしてここの処理でformから送られてきた個数を取得して、$num_arrayという配列に格納している
             }
     
             $id_num_array = array_combine($id_array, $num_array);
@@ -476,18 +578,7 @@ class ProductController extends Controller
             }
 
 
-
-            // 
-            $purchased_products = [];
-
-            session(['purchased_products' => $purchased_products]);
-
-
-            if( !session()->has('purchased_products') ) {
-                $purchased_products = [];
-            } else {
-                $purchased_products = session('purchased_products');
-            }
+            // 購入処理と購入履歴の追加
             $purchase_error = [];
             foreach( $id_num_array as $key => $value ) {
                 $product = Product::find($key);
@@ -497,13 +588,34 @@ class ProductController extends Controller
 
 
                 if( $stock >= $value ) {
+                    // ProductDBの更新
                     Product::where('id', '=', $key)
                         ->update([
                             'stock' => $update_stock,
                         ]);
                     
-                    $purchased_products[] = $key;
+                    // 購入履歴の追加
+                    $purchased_products[$key] = [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'image' => $product->image,
+                    ];
+                    if( $purchased_products[$key]['image'] == null ) {
+                        $purchased_products[$key]['image'] = "no_image_logo.png";
+                    }
+
+                    PurchasedProduct::create([
+                        'user_id' => $user_id,
+                        'product_id' => $key,
+                    ]);
+
+                    // ショッピングカート内の商品の削除とShoppingCartDBの更新
                     unset($shopping_cart[$key]);
+                    
+                    ShoppingCart::where('user_id', '=', $user_id)
+                    ->where('product_id', '=', $key)
+                    ->delete();
 
                 } else {
                     $purchase_error[] = $product->name;
@@ -511,12 +623,9 @@ class ProductController extends Controller
             }
             
             session(['purchased_products' => $purchased_products]);
-            if( count($shopping_cart) == 0 ) {
-                unset($shopping_cart);
-                session()->forget('shopping_cart');
-            } else {
-                session(['shopping_cart' => $shopping_cart]);
-            }
+            session(['shopping_cart' => $shopping_cart]);
+
+
 
             if( count($purchase_error) == 1 && $shopping_cart_only_flag == true ) {
                 return back()->with('purchase_error_only', $purchase_error[0] . 'の購入に失敗しました。');
@@ -529,7 +638,7 @@ class ProductController extends Controller
             return view('purchased');
         
         } else {
-            return redirect( route('home') );
+            return redirect( route('home') )->with('purchased_error', 'エラーが発生しました。');
         }
     }
 
@@ -540,42 +649,102 @@ class ProductController extends Controller
 
         // ショッピングカートの表示
         public function shoppingCart(Request $request) {
-            $shopping_cart = session('shopping_cart');
 
-            if( !is_null($shopping_cart) ) {
-                $product_id_array = [];
+            // ログインユーザーid
+            $user_id = Auth::user()->id;
+
+            // DBからショッピングカート情報を取得
+            $shopping_cart_info = ShoppingCart::select([
+                'p.id',
+                'p.name',
+                'p.price',
+                'p.image',
+                'sc.num',
+            ])
+            ->from('products as p')
+            ->join('shoppingcart as sc', function($join) {
+                $join->on('p.id', '=', 'sc.product_id');
+            })
+            ->where('sc.user_id', '=', $user_id)
+            ->get();
+    
+            $shopping_cart = [];
+
+            // if( count($shopping_cart_info) > 0 && !session()->has('shopping_cart') ) {
+            if( count($shopping_cart_info) > 0 ) {
+
+                $product_keys = [];
+                $product_info = [];
+    
+                foreach( $shopping_cart_info as $shopping_cart_product ) {
+                    $product_keys[] = $shopping_cart_product->id;
+                    $product_info[] = $shopping_cart_product;
+    
+                }
+    
+                $shopping_cart = array_combine($product_keys, $product_info);
+    
                 foreach( $shopping_cart as $key => $value ) {
-                    $product_id_array[] = $key;
+                    if( $value["image"] == null ) {
+                        $shopping_cart[$key]["image"] = "no_image_logo.png";
+                    }
                 }
         
-                $product_price_array = [];
-                $product_count_array = [];
-                foreach( $product_id_array as $value ) {
-                    $price = $shopping_cart[$value]['price'];
-                    $num = $shopping_cart[$value]['num'];
-                    $product_price = $price * $num;
-                    $product_price_array[] = $product_price;
-                    $product_count_array[] = $num;
-                }
-                $total_price = array_sum($product_price_array);
-        
-                $total_count = array_sum($product_count_array);
-        
-                $shopping_cart_info = [];
-                $shopping_cart_info['total_price'] = $total_price;
-                $shopping_cart_info['total_count'] = $total_count;
-        
-                return view('shopping_cart', ['shopping_cart' => $shopping_cart, 'shopping_cart_info' => $shopping_cart_info]);
-
-            } else {
-                return view('shopping_cart', ['shopping_cart' => $shopping_cart]);
             }
+
+            session(['shopping_cart' => $shopping_cart]);
+
+            return view('shopping_cart', ['shopping_cart' => $shopping_cart]);
 
         }
 
 
         // ショッピングカートに商品を追加
         public function addShoppingCart(Request $product) {
+            // ログインユーザーid
+            $user_id = Auth::user()->id;
+
+            // DBからショッピングカート情報を取得
+            $shopping_cart = session('shopping_cart');
+
+            $shopping_cart_info = ShoppingCart::select([
+                'p.id',
+                'p.name',
+                'p.price',
+                'p.image',
+                'sc.num',
+            ])
+            ->from('products as p')
+            ->join('shoppingcart as sc', function($join) {
+                $join->on('p.id', '=', 'sc.product_id');
+            })
+            ->where('sc.user_id', '=', $user_id)
+            ->get();
+    
+    
+            if( count($shopping_cart_info) > 0 ) {
+
+                $product_keys = [];
+                $product_info = [];
+    
+                foreach( $shopping_cart_info as $shopping_cart_product ) {
+                    $product_keys[] = $shopping_cart_product->id;
+                    $product_info[] = $shopping_cart_product;
+    
+                }
+    
+                $shopping_cart = array_combine($product_keys, $product_info);
+    
+                foreach( $shopping_cart as $key => $value ) {
+                    if( $value["image"] == null ) {
+                        $purchased_products[$key]["image"] = "no_image_logo.png";
+                    }
+                }
+    
+                session(['shopping_cart' => $shopping_cart]);
+        
+            }
+            
             // ユーザーからのリクエスト
             $add_product_id = $product->id;
             $add_product = [
@@ -590,40 +759,56 @@ class ProductController extends Controller
                 $add_product['image'] = "no_image_logo.png";
             }
 
-            if( !session()->has('shopping_cart') ) {
-                // セッションにショッピングカートが存在しないとき(カート内に初めて商品を入れるとき)
-                $shopping_cart = [];
+
+            if( empty($shopping_cart) ) {
+                // ショッピングカートに商品が存在しないとき
                 $shopping_cart[$add_product_id] = $add_product;
                 session(['shopping_cart' => $shopping_cart]);
+
+                // DBにも記録する
+                ShoppingCart::create([
+                    'user_id' => $user_id,
+                    'product_id' => $add_product_id,
+                    'num' => $add_product['num'],
+                ]);
+
                 return back()->with('cart_success', '商品をカートに追加しました。');
 
 
             } else {
-                // セッションにショッピングカートが存在するとき(すでにカート内に商品が入っている)
-                $shopping_cart = session('shopping_cart');
-                $product_incart_num = count($shopping_cart);
+                // ショッピングカートに商品が存在していて新たに商品を追加するとき
+                if( array_key_exists($add_product_id, $shopping_cart) ) {
+                    // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
+                    $update_num = $shopping_cart[$add_product_id]['num'] + $product->num;
+                    $shopping_cart[$add_product_id]['num'] = $update_num;
 
-                if( $product_incart_num == 0 ) {
-                    // セッションにショッピングカートが存在しているが商品が１つも入っていないとき
-                    $shopping_cart[$add_product_id] = $add_product;
+                    // DBに上書き
+                    ShoppingCart::where('user_id', '=', $user_id)
+                    ->where('product_id', '=', $add_product_id)
+                    ->update([
+                        'num' => $update_num,
+                    ]);
                 } else {
-                    // セッションにショッピングカートが存在しており、カート内に商品が入っているとき
-                    if( array_key_exists($add_product_id, $shopping_cart) ) {
-                        // ユーザーからのリクエストが重複するとき(すでにカート内に入っている商品を追加でカートに入れるとき)
-                        $shopping_cart[$add_product_id]['num'] += $product->num;
-                    } else {
-                        // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
-                        foreach( $shopping_cart as $key => $value ) {
-                            $product_keys[] = $key;
-                            $product_values[] = $value;
-        
-                        }
-                        array_push($product_keys, $add_product_id);
-                        array_push($product_values, $add_product);
-        
-                        $shopping_cart = array_combine($product_keys, $product_values);
-        
+                    // ユーザーからのリクエストが重複しないとき(カート内に新規の商品を入れるとき)
+                    $product_keys = [];
+                    $product_values = [];
+
+                    foreach( $shopping_cart as $key => $value ) {
+                        $product_keys[] = $key;
+                        $product_values[] = $value;
+    
                     }
+                    array_push($product_keys, $add_product_id);
+                    array_push($product_values, $add_product);
+    
+                    $shopping_cart = array_combine($product_keys, $product_values);
+
+                    // DBにも記録する
+                    ShoppingCart::create([
+                        'user_id' => $user_id,
+                        'product_id' => $add_product_id,
+                        'num' => $add_product['num'],
+                    ]);
 
                 }
 
@@ -636,21 +821,64 @@ class ProductController extends Controller
 
         // ショッピングカートの商品を削除
         public function deleteShoppingCart(Request $request) {
-            $delete_product_id = $request->session_product_id;
+            // ログインユーザーid
+            $user_id = Auth::user()->id;
 
+            // DBからショッピングカート情報を取得
             $shopping_cart = session('shopping_cart');
-            $product_incart_num = count($shopping_cart);
+
+            $shopping_cart_info = ShoppingCart::select([
+                'p.id',
+                'p.name',
+                'p.price',
+                'p.image',
+                'sc.num',
+            ])
+            ->from('products as p')
+            ->join('shoppingcart as sc', function($join) {
+                $join->on('p.id', '=', 'sc.product_id');
+            })
+            ->where('sc.user_id', '=', $user_id)
+            ->get();
+    
+    
+            // if( count($shopping_cart_info) > 0 && !session()->has('shopping_cart') ) {
+            if( count($shopping_cart_info) > 0 ) {
+
+                $product_keys = [];
+                $product_info = [];
+    
+                foreach( $shopping_cart_info as $shopping_cart_product ) {
+                    $product_keys[] = $shopping_cart_product->id;
+                    $product_info[] = $shopping_cart_product;
+    
+                }
+    
+                $shopping_cart = array_combine($product_keys, $product_info);
+    
+                foreach( $shopping_cart as $key => $value ) {
+                    if( $value["image"] == null ) {
+                        $purchased_products[$key]["image"] = "no_image_logo.png";
+                    }
+                }
+    
+                session(['shopping_cart' => $shopping_cart]);
+        
+            }
             
+
+            // ユーザーからのリクエスト
+            $delete_product_id = $request->session_product_id;            
 
             if( array_key_exists($delete_product_id, $shopping_cart) ) {
                 unset($shopping_cart[$delete_product_id]);
                 session(['shopping_cart' => $shopping_cart]);
 
-                $product_incart_num = count($shopping_cart);
-                if( $product_incart_num == 0 ) {
-                    unset($shopping_cart);
-                    session()->forget('shopping_cart');
-                }
+                // DBにも記録する
+                ShoppingCart::where('user_id', $user_id)
+                ->where('product_id', $delete_product_id)
+                ->delete();
+
 
                 return back()->with('delete_shopping_cart_success', 'カートから商品を削除しました');
             } else {
@@ -660,7 +888,15 @@ class ProductController extends Controller
 
         // ショッピングカートの商品をすべて削除
         public function deleteAllShoppingCart() {
+            // ログインユーザーid
+            $user_id = Auth::user()->id;
+
             session()->forget('shopping_cart');
+            $shopping_cart = null;
+            session(['shopping_cart' => $shopping_cart]);
+
+            ShoppingCart::where('user_id', $user_id)->delete();
+
             return back()->with('delete_shopping_cart_success', 'カートから商品を削除しました');
         }
 
@@ -668,31 +904,46 @@ class ProductController extends Controller
      * 購入履歴
      */
     public function purchasedProduct() {
-        $purchased_product_ids = session('purchased_products');
+        $user_id = Auth::user()->id;
 
-        if( is_null($purchased_product_ids) ) {
-            $purchased_products = null;
+        // DBから購入履歴情報を取得
+        $purchased_products_info = PurchasedProduct::select([
+            'p.id',
+            'p.name',
+            'p.price',
+            'p.image',
+        ])
+        ->from('products as p')
+        ->join('purchasedproducts as pp', function($join) {
+            $join->on('p.id', '=', 'pp.product_id');
+        })
+        ->where('pp.user_id', '=', $user_id)
+        ->get();
+
+
+        if( empty($purchased_products_info) ) {
+            $purchased_products = [];
         } else {
-            $purchased_product_info = [];
-            foreach( $purchased_product_ids as $value ) {
-                $product = Product::find($value);
+            $product_keys = [];
+            $product_info = [];
 
-                $product_info = [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'image' => $product->image,
-                ];
+            foreach( $purchased_products_info as $purchased_product ) {
+                $product_keys[] = $purchased_product->id;
+                $product_info[] = $purchased_product;
 
-                if( $product_info['image'] == null ) {
-                    $product_info['image'] = "no_image_logo.png";
-                }
-
-                $purchased_product_info[] = $product_info;
             }
 
-            $purchased_products = array_combine($purchased_product_ids, $purchased_product_info);
+            $purchased_products = array_combine($product_keys, $product_info);
+
+            foreach( $purchased_products as $key => $value ) {
+                if( $value["image"] == null ) {
+                    $purchased_products[$key]["image"] = "no_image_logo.png";
+                }
+            }
         }
+        
+        session(['purchased_products' => $purchased_products]);
+        
 
         return view('purchased_product', ['purchased_products' => $purchased_products]);
     }

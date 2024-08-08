@@ -7,17 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 
-class ShoppingCart extends Model
+class PurchasedProduct extends Model
 {
     use HasFactory;
 
-    protected $table = 'shoppingcart';
+    protected $table = 'purchasedproducts';
 
     protected $fillable = 
     [
         'user_id',
         'product_id',
-        'num',
     ];
     
     

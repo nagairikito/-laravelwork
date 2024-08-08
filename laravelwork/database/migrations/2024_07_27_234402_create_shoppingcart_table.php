@@ -13,8 +13,9 @@ return new class extends Migration
     {
         if(!Schema::hasTable('shoppingcart')) {
             Schema::create('shoppingcart', function (Blueprint $table) {
-                $table->user_id();
-                $table->product_id();
+                $table->integer('user_id');
+                $table->integer('product_id');
+                $table->integer('num');
                 $table->timestamps();
             });
         }
