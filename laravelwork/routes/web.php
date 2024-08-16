@@ -22,7 +22,7 @@ use App\Http\Controllers\ProductController;
 Route::get('/', [HomeController::class, 'allList'])->name('home');
 
 // 検索機能
-Route::post('/search', [ProductController::class, 'search'])->name('search');
+Route::get('/search', [ProductController::class, 'search'])->name('search');
 
 // カテゴリー一覧
 Route::get('/category/{id}/{category}', [ProductController::class, 'category'])->name('category');

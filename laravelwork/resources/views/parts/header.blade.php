@@ -1,7 +1,11 @@
 <header>
-        <form class="search_var" action="{{ route('search') }}" method="POST">
+        <form class="search_var" action="{{ route('search') }}" method="GET">
         @csrf
+        @if( isset($keyword) )
+            <input type="search" name="keyword" placeholder="商品名・ショップ名" value="{{ $keyword }}" style="width: 80%; height: 100%;">
+        @else
             <input type="search" name="keyword" placeholder="商品名・ショップ名" style="width: 80%; height: 100%;">
+        @endif
             <input type="submit" value="検索" style="width: 15%; height: 100%;">
         </form>
 

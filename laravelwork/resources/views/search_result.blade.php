@@ -15,15 +15,15 @@
     <main>
 
 
-    <form class="" action="{{ route('search') }}" method="POST">
+    <form class="" action="{{ route('search') }}" method="GET">
     @csrf
         <input type="search" name="keyword" placeholder="商品名・ショップ名" value="{{ $keyword }}" style="width: 15%; height: 100%;">
         <input type="submit" value="検索" style="width: 15%; height: 100%;">
     </form>
 
     
+    <p>検索結果： 該当商品　{{ $result_count }} 件</p>
     @if( $result_count > 0 )
-        <p>検索結果： 該当商品　{{ $result_count }} 件</p>
         <table border="1">
             @foreach( $result as $product => $value )
                 <tr>
@@ -40,7 +40,8 @@
                 </tr>
             @endforeach
         </table>
-        {{ $result->links() }}
+
+        {{ $result->appends($pagenate_params)->links() }}
 
     @else
         <p>該当する商品がありません。</p>

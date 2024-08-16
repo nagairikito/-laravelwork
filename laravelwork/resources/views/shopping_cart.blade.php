@@ -53,17 +53,23 @@
                             <p>{{ $value['name'] }}</p>
                             <p style="color: red;">￥{{ $value['price'] }}円</p>
                             <p>個数：<input type="number" min=1 max=99 value="{{ $value['num'] }}" name="{{ 'num' . $value['id'] }}" style="width: 50px;">点</p>
-                            <form action="{{ route('delete_shopping_cart') }}" method="POST">
-                            @csrf
-                                <input type="hidden" name="session_product_id" value="{{ $value['id'] }}">
-                                <input type="submit" value="削除">
-                            </form>
+
+                            <!-- カート内商品の削除ボタン -->
+                            <input type="hidden" name="session_product_id" value="{{ $value['id'] }}" form="delete"> 
+                            <input type="submit" value="削除" form="delete"> 
+
                         </td>
                     </tr>
                 @endforeach
             </table>
             <input type="submit" value="購入">
         </form>
+
+        <!-- カート内商品の削除form -->
+        <form action="{{ route('delete_shopping_cart') }}" method="POST" id="delete">
+        @csrf
+        </form>
+
 
     @else
         <p>カートに商品が入っていません。</p>

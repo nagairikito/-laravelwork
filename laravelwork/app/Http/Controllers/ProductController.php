@@ -14,6 +14,7 @@ use App\Models\PurchasedProduct;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\ProductRegisterRequest;
 
 class ProductController extends Controller
@@ -24,7 +25,7 @@ class ProductController extends Controller
     public function search(Request $request) {
         $keyword = $request->input('keyword');
         if( !empty($keyword) ) {
-            $result = Product::select([
+            $pre_result = Product::query()->select([
                 'p.id',
                 'p.shop_id',
                 'p.name',
@@ -41,18 +42,28 @@ class ProductController extends Controller
             })
             ->where('p.name', 'LIKE', "%{$keyword}%")
             ->orWhere('s.name', 'LIKE', "%{$keyword}%")
-            ->paginate(10);
+            ->get();
+            // ->paginate(10);
 
-            // $posts = $result->paginate(10);
-            foreach( $result as $key => $product_info) {
+            // $result = $result->paginate(10);
+            foreach( $pre_result as $key => $product_info) {
                 if( $product_info['image'] == null ) {
                     $product_info['image'] = 'no_image_logo.png';
                 }
     
             }
 
-            $result_count = count($result);
-            return view('search_result', ['keyword' => $keyword, 'result' => $result, 'result_count' => $result_count]);
+            $pre_result_array = [];
+            foreach( $pre_result as $key => $value ) {
+                $pre_result_array[] = $value;
+            }
+
+            $result_count = count($pre_result);
+
+            $page = 1;
+            $result = new LengthAwarePaginator($pre_result_array, $result_count, 10, $page, array('path' => '/search'));
+
+            return view('search_result', ['keyword' => $keyword, 'result' => $result, 'result_count' => $result_count, 'pagenate_params' => [ 'keyword' => $keyword ] ]);
 
         }
 
