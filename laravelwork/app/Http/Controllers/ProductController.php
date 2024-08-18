@@ -664,6 +664,12 @@ class ProductController extends Controller
             // ログインユーザーid
             $user_id = Auth::user()->id;
 
+            // ショッピングカートを定義
+            $shopping_cart = [];
+            $total_price = 0;
+            $total_num = 0;
+
+
             // DBからショッピングカート情報を取得
             $shopping_cart_info = ShoppingCart::select([
                 'p.id',
@@ -679,7 +685,6 @@ class ProductController extends Controller
             ->where('sc.user_id', '=', $user_id)
             ->get();
     
-            $shopping_cart = [];
 
             // if( count($shopping_cart_info) > 0 && !session()->has('shopping_cart') ) {
             if( count($shopping_cart_info) > 0 ) {
@@ -694,18 +699,21 @@ class ProductController extends Controller
                 }
     
                 $shopping_cart = array_combine($product_keys, $product_info);
-    
+
                 foreach( $shopping_cart as $key => $value ) {
                     if( $value["image"] == null ) {
                         $shopping_cart[$key]["image"] = "no_image_logo.png";
                     }
+
+                    $total_price += $value["price"];
+                    $total_num += $value["num"];
                 }
         
             }
 
             session(['shopping_cart' => $shopping_cart]);
 
-            return view('shopping_cart', ['shopping_cart' => $shopping_cart]);
+            return view('shopping_cart', ['shopping_cart' => $shopping_cart, 'total_price' => $total_price, 'total_num' => $total_num]);
 
         }
 

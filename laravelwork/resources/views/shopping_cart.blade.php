@@ -24,9 +24,9 @@
         <p class="fail">{{ session('delete_shopping_cart_failed') }}</p>
     @endif
 
-    @if( isset($shopping_cart_info) )
-        <p style="color: red; font-weight: bold; font-size: 1.2rem;">合計金額　　￥{{ $shopping_cart_info['total_price'] }}円</p>
-        <p style="color: red; font-weight: bold; font-size: 1.2rem;">カート内商品　　{{ $shopping_cart_info['total_count'] }}点</p>
+    @if( isset($shopping_cart) )
+        <p style="color: red; font-weight: bold; font-size: 1.2rem;">合計金額　　￥{{ $total_price }}円</p>
+        <p style="color: red; font-weight: bold; font-size: 1.2rem;">カート内商品　　{{ $total_num }}点</p>
     @endif
 
     @if( session('purchase_error_only') )

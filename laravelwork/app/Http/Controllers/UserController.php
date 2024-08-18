@@ -33,6 +33,13 @@ class UserController extends Controller
      * @return view
      */
     public function register(UserRegisterRequest $request) {
+        // 同じメールアドレスが存在していないか判定
+        $user_check_exist = User::where('email', '=', $request['email'])->limit(1)->get();
+
+        if(count($user_check_exist) > 0) {
+            return back()->with('register_err_exist', 'このメールアドレスは既に使用されています。');
+        }
+
         \DB::beginTransaction();
         try {
             User::query()->create([

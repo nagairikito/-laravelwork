@@ -30,6 +30,9 @@
         @if ( $errors->has('email') )
             <p style="color: red;">{{ $errors->first('email') }}</p>
         @endif
+        @if ( session('register_err_exist') )
+            <p style="color: red;">{{ session('register_err_exist') }}</p>
+        @endif
 
         <p>パスワード</p>
         <input type="password" name="password">
