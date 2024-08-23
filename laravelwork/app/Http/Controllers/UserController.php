@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\UserEditRequest;
 use App\Models\User;
 use App\Models\Shop;
 use App\Models\Product;
@@ -240,6 +241,52 @@ class UserController extends Controller
 
         return redirect(route('home'))->with('logout_msg', 'ログアウトしました。');
     }
+
+    /**
+     * ユーザー情報編集フォーム
+     */
+    public function userEditForm() {
+        $user = User::find(Auth::user()->id);
+        return view('user_edit_form', ['user' => $user]);
+    }
+
+    /**
+     * ユーザー情報編集機能
+     */
+    public function userEdit(UserEditRequest $request) {
+        $login_user_id = $request->login_user;
+        $login_user = User::find($login_user_id);
+
+
+        if( Auth::user()->id = $login_user_id ) {
+            if( $request['new_password'] != $request['confirmation_new_password'] ) {
+                return back()->with('new_password_confirm_err', '確認用パスワードと一致しません。');
+            }
+    
+            if( $request->new_password == null ) {
+                User::where('id', '=', $login_user_id)
+                ->update([
+                    'name' => $request->name,
+                    // 'email' => $request->email,
+                ]);
+        
+            } else {
+                User::where('id', '=', $login_user_id)
+                ->update([
+                    'name' => $request->name,
+                    // 'email' => $request->email,
+                    'password' => Hash::make($request->new_password),
+                ]);
+        
+            }
+
+        return redirect( route('home') )->with('user_edit_success', 'ユーザー情報を変更しました。');
+
+        } else {
+            return redirect( route('home') )->with('user_edit_error', 'エラーが発生しました。');
+        }
+    }
+
 
     /**
      * ショップオーナーアカウント

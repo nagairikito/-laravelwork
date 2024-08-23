@@ -20,6 +20,13 @@
         <li><p style="font-weight: bold;">ログインユーザー</p></li>
         <li>ユーザー名 : {{ Auth::user()->name }}</li>
         <li>ユーザーID : {{ Auth::user()->id }}</li>
+        <li>
+            <form action="{{ route('user_edit_form') }}" method="GET">
+            @csrf
+                <input type="submit" value="ユーザー情報編集">
+            </form>
+        <li>
+
     </ul>
 
 

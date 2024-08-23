@@ -32,6 +32,11 @@
                 <li>メールアドレス:</li>
                 <li style="overflow-wrap: break-word;">{{ Auth::user()->email }}</li>
                 <li>
+                    <form action="{{ route('user_edit_form') }}" method="GET">
+                    @csrf
+                        <input type="submit" value="ユーザー情報編集">
+                    </form>
+                <li>
                     <form action="{{ route('logout') }}" method="POST">
                     @csrf
                         <input type="submit" value="ログアウト">
@@ -83,6 +88,14 @@
 
         @if( session('purchased_error') )
             <p class="fail">{{ session('purchased_error') }}</p>
+        @endif
+
+        @if( session('user_edit_success') )
+            <p class="success">{{ session('user_edit_success') }}</p>
+        @endif
+
+        @if( session('user_edit_error') )
+            <p class="fail">{{ session('user_edit_error') }}</p>
         @endif
 
 

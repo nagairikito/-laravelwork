@@ -1019,6 +1019,7 @@ class ProductController extends Controller
                     'stock' => $request['stock'], 
                     'discription' => $request['discription'],
                     'image' => $image_name,
+                    'category_id' => $request['category_id'],
                 ]);
             } else {
                 if( $shop && $shop_user_id === $auth ) {
@@ -1175,7 +1176,7 @@ class ProductController extends Controller
                     'price' => $request->price,
                     'stock' => $request->stock,
                     'discription' => $request->discription,
-                    'image' => $request->image,
+                    // 'image' => $request->image,
                 ]);
 
             }

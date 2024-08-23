@@ -58,8 +58,15 @@ Route::get('/product/{id}/{name}', [ProductController::class, 'productDetail'])-
 
     // 認証(ログイン)後 app\Providers\RouteServiceProvider.phpを参照
     Route::group(['middleware' => ['auth']], function() {
+
         // ログアウト
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+        // ユーザー情報編集フォーム
+        Route::get('/user_edit_form', [UserController::class, 'userEditForm'])->name('user_edit_form');
+
+        // ユーザー情報編集
+        Route::post('/user_edit_form', [UserController::class, 'userEdit'])->name('user_edit');
 
         // 別のアカウントでログイン
         // Route::post('/change_account', [UserController::class, 'change_account'])->name('change_account');

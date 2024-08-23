@@ -10,7 +10,10 @@
         </form>
 
         @if ( is_null(Auth::user()) )
-                <p class="header_nav"><a href="{{ route('login_form') }}">ログイン</a></p>
+                <p class="header_nav">
+                    <a href="{{ route('register_form') }}">新規登録</a>
+                    <a href="{{ route('login_form') }}">ログイン</a>
+                </p>
         @endif
 
         @if ( Auth::user() )
