@@ -33,6 +33,9 @@
         @if ( session('new_password_confirm_err') )
         <p class="fail">{{ session('new_password_confirm_err') }}</p>
         @endif
+        @if ( session('new_password_err') )
+        <p class="fail">{{ session('new_password_err') }}</p>
+        @endif
 
 
         <p>新しいパスワードを再度ご入力ください</p>

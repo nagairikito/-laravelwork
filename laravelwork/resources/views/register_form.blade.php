@@ -22,28 +22,31 @@
         <p>ご氏名</p>
         <input type="name" name="name">
         @if ( $errors->has('name') )
-            <p style="color: red;">{{ $errors->first('name') }}</p>
+            <p class="fail">{{ $errors->first('name') }}</p>
         @endif
 
         <p>メールアドレス</p>
         <input type="email" name="email">
         @if ( $errors->has('email') )
-            <p style="color: red;">{{ $errors->first('email') }}</p>
+            <p class="fail">{{ $errors->first('email') }}</p>
         @endif
         @if ( session('register_err_exist') )
-            <p style="color: red;">{{ session('register_err_exist') }}</p>
+            <p class="fail">{{ session('register_err_exist') }}</p>
         @endif
 
         <p>パスワード</p>
         <input type="password" name="password">
         @if ( $errors->has('password') )
-            <p style="color: red;">{{ $errors->first('password') }}</p>
+            <p class="fail">{{ $errors->first('password') }}</p>
+        @endif
+        @if ( session('password_err') )
+            <p class="fail">{{ session('password_err') }}</p>
         @endif
 
         <p>確認用パスワード</p>
         <input type="password" name="password_confirmation"><br>
         @if ( $errors->has('password.confirmed') )
-            <p style="color: red;">{{ $errors->first('password.confirmed') }}</p>
+            <p class="fail">{{ $errors->first('password.confirmed') }}</p>
         @endif
 
         <input type="submit" value="新規登録">

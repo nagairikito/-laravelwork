@@ -41,6 +41,11 @@ class UserController extends Controller
             return back()->with('register_err_exist', 'このメールアドレスは既に使用されています。');
         }
 
+        if( !preg_match("/\A[a-z\d]{8,100}+\z/i", $request['password']) ) {
+            return back()->with('password_err', 'パスワードは英数字8文字以上100文字以下にしてください。');
+        }        
+
+
         \DB::beginTransaction();
         try {
             User::query()->create([
@@ -259,6 +264,10 @@ class UserController extends Controller
 
 
         if( Auth::user()->id = $login_user_id ) {
+            if( !preg_match("/\A[a-z\d]{8,100}+\z/i", $request['new_password']) ) {
+                return back()->with('new_password_err', 'パスワードは英数字8文字以上100文字以下にしてください。');
+            }        
+
             if( $request['new_password'] != $request['confirmation_new_password'] ) {
                 return back()->with('new_password_confirm_err', '確認用パスワードと一致しません。');
             }
