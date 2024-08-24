@@ -58,10 +58,20 @@ class ProductController extends Controller
                 $pre_result_array[] = $value;
             }
 
+            // 検索にマッチした総件数
             $result_count = count($pre_result);
 
-            $page = 1;
-            $result = new LengthAwarePaginator($pre_result_array, $result_count, 10, $page, array('path' => '/search'));
+            // アクセスしているページ数
+            $page = $request->page;
+
+            // 1ページあたりの表示件数
+            $perpage = 10;
+
+            // アクセスしているページの表示内容(検索結果10件分)
+            $per_page_result = array_slice($pre_result_array, ($page * $perpage)-$perpage, ($page * $perpage)-1 );
+
+            // ページごとに表示する結果を分ける(2ページ目は21～30件数など)
+            $result = new LengthAwarePaginator($per_page_result, $result_count, $perpage, $page, array('path' => '/search'));
 
             return view('search_result', ['keyword' => $keyword, 'result' => $result, 'result_count' => $result_count, 'pagenate_params' => [ 'keyword' => $keyword ] ]);
 
