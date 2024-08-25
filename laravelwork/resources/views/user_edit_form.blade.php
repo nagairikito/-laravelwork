@@ -13,6 +13,16 @@
 
     <main>
 
+    <div class="modal isOpen">
+        <form action="" method="POST">
+            <p>パスワードを入力してください</p>
+            <input type="password">
+            @if ( session('password_err') )
+                <p class="fail">{{ session('password_err') }}</p>
+            @endif
+            <input type="submit" value="送信">
+        </form>
+    </div>
 
     <h1>アカウント編集フォーム</h1>
     <form action="{{ route('user_edit') }}" method="POST">
