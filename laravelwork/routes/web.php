@@ -62,6 +62,9 @@ Route::get('/product/{id}/{name}', [ProductController::class, 'productDetail'])-
         // ログアウト
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
+        // パスワードセキュリティー
+        Route::post('/password_security', [UserController::class, 'passSecurity'])->name('pass_security');
+
         // ユーザー情報編集フォーム
         Route::get('/user_edit_form', [UserController::class, 'userEditForm'])->name('user_edit_form');
 

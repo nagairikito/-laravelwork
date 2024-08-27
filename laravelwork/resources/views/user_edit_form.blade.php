@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('/css/app.css') }}">
+    
+    <script src="{{ asset('/js/pass_security.js') }}" defer></script>
+
+
 
     <title>アカウント編集フォーム</title>
 </head>
@@ -12,11 +16,16 @@
     @include('parts.header')
 
     <main>
-
-    <div class="modal isOpen">
-        <form action="" method="POST">
+@if($password_security_check == true)
+    <div class="pass_security" >
+@elseif($password_security_check == false)
+    <div class="pass_security isActive">
+@endif
+        <form action="{{ route('pass_security') }}" method="POST">
+        @csrf
             <p>パスワードを入力してください</p>
-            <input type="password">
+            <input type="hidden" name="login_user_id" value="{{ Auth::user()->id }}">
+            <input type="password" name="password">
             @if ( session('password_err') )
                 <p class="fail">{{ session('password_err') }}</p>
             @endif

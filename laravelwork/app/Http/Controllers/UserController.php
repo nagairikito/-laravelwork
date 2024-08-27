@@ -248,11 +248,49 @@ class UserController extends Controller
     }
 
     /**
+     * パスワードセキュリティー
+     */
+    public function passSecurity(Request $request) {
+
+        if( !$request->password ) {
+            return redirect( route('user_edit_form') )->with('password_err', 'パスワードを入力してください。');
+        }
+
+        $login_user_id = $request->login_user_id;
+        $login_user = User::find($login_user_id);
+        $login_user_password = $login_user->password;
+
+        $password_security_check = password_verify($request->password, $login_user_password);
+
+        if( $password_security_check == false ) {
+            return redirect( route('user_edit_form') )->with('password_err', 'パスワードに誤りがあります。');
+        }
+
+        // return redirect( route('user_edit_form', ['password_security_check' => $password_security_check]));
+        session(['password_security_check' => $password_security_check]);
+        return redirect( route('user_edit_form'));
+
+    }
+
+    /**
      * ユーザー情報編集フォーム
      */
     public function userEditForm() {
+
+        $password_security_check_flag = false;
+        if( session('password_security_check') && session('password_security_check') == true ){
+            $password_security_check_flag = true;
+        }
+        session()->forget('password_security_check');
+
+        $password_security_check = false;
+
+        if($password_security_check_flag == true){
+            $password_security_check = true;
+        }
+
         $user = User::find(Auth::user()->id);
-        return view('user_edit_form', ['user' => $user]);
+        return view('user_edit_form', ['user' => $user, 'password_security_check' => $password_security_check]);
     }
 
     /**
